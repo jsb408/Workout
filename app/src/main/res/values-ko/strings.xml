@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_timerBtnLbl">타이머</string>
+    <string name="main_logBtnLbl">운동기록</string>
+
+    <string name="timer_startBtnLbl">시작</string>
+    <string name="timer_restBtnLbl">휴식</string>
+    <string name="timer_finishBtnLbl">종료</string>
+
+    <string name="timer_curRecordLbl">최근 기록</string>
+
+    <string name="workout">운동</string>
+    <string name="rest">휴식</string>
+
+    <string name="minute">분</string>
+    <string name="second">초</string>
+    <string name="timer_restFinish_title">운동시간</string>
+    <string name="timer_restFinish_content">휴식시간이 종료되었습니다.</string>
+    <string name="submit">확인</string>
+</resources>
