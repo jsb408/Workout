@@ -9,6 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".LogsActivity"></activity>
         <activity android:name=".TimerActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

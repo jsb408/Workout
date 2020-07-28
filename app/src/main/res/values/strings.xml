@@ -2,6 +2,7 @@
     <string name="app_name" translatable="false">Workout</string>
     <string name="main_timerBtnLbl">Timer</string>
     <string name="main_logBtnLbl">Logs</string>
+    <string name="main_sleepBtnLbl">Bedtime</string>
 
     <string name="timer_startBtnLbl">Start</string>
     <string name="timer_restBtnLbl">Rest</string>

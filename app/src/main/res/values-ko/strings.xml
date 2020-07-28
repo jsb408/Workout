@@ -17,4 +17,5 @@
     <string name="timer_restFinish_title">운동시간</string>
     <string name="timer_restFinish_content">휴식시간이 종료되었습니다.</string>
     <string name="submit">확인</string>
+    <string name="main_sleepBtnLbl">잠 들 시간</string>
 </resources>

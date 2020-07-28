@@ -17,5 +17,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, TimerActivity::class.java)
             startActivity(intent)
         }
+
+        logsBtn.setOnClickListener {
+            val intent = Intent(this, LogsActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

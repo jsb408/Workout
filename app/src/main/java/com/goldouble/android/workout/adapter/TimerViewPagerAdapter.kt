@@ -2,7 +2,6 @@ package com.goldouble.android.workout.adapter
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +13,7 @@ import io.realm.Realm
 import io.realm.kotlin.createObject
 import kotlinx.android.synthetic.main.activity_timer_cur_logs.view.*
 import kotlinx.android.synthetic.main.activity_timer_timer.view.*
+import kotlinx.android.synthetic.main.dialog_number_picker.view.*
 import java.text.DecimalFormat
 import java.util.*
 
@@ -42,19 +42,42 @@ class TimerViewPagerAdapter(val activity: Activity) : RecyclerView.Adapter<Timer
 
         var mTimer : Timer? = null
         var exTime = 0
+        var restTime = 60
 
         fun bindData(position: Int) {
             when(layouts[position]) {
                 R.layout.activity_timer_timer -> { //타이머
-                    view.startBtn.setOnClickListener {
-                        controlTimer(true)
-                    }
-                    view.restBtn.setOnClickListener {
-                        controlTimer(false)
-                    }
-                    view.finishBtn.setOnClickListener {
-                        mTimer?.cancel()
-                        activity.finish()
+                    view.apply {
+                        startBtn.setOnClickListener {
+                            controlTimer(true)
+                        }
+                        restBtn.setOnClickListener {
+                            controlTimer(false)
+                        }
+                        finishBtn.setOnClickListener {
+                            mTimer?.cancel()
+                            activity.finish()
+                        }
+                        restTimeBtn.apply {
+                            val defaultRestTime = "1" + context.getString(R.string.minute)
+                            text = defaultRestTime
+                            setOnClickListener {
+                                val numberPickerDialog = activity.layoutInflater.inflate(R.layout.dialog_number_picker, null).apply {
+                                    numberPicker.maxValue = 10
+                                    numberPicker.minValue = 1
+                                    numberPicker.value = restTime / 60
+                                }
+
+                                AlertDialog.Builder(context).setView(numberPickerDialog)
+                                    .setPositiveButton(R.string.submit) { _, _ ->
+                                        val selectedTime = numberPickerDialog.numberPicker.value
+                                        val restTimeText = "${selectedTime}${context.getString(R.string.minute)}"
+                                        text = restTimeText
+                                        restTime = selectedTime * 60
+                                    }
+                                    .show()
+                            }
+                        }
                     }
                 }
                 R.layout.activity_timer_cur_logs -> { //최근기록
@@ -93,7 +116,7 @@ class TimerViewPagerAdapter(val activity: Activity) : RecyclerView.Adapter<Timer
                     super.cancel()
                 }
             }
-            exTime = if(isStart) -1 else 61
+            exTime = if(isStart) -1 else (restTime + 1)
             mTimer?.schedule(timerTask, 0, 1000)
 
             view.restBtn.isEnabled = !view.restBtn.isEnabled
@@ -106,7 +129,7 @@ class TimerViewPagerAdapter(val activity: Activity) : RecyclerView.Adapter<Timer
             val record = realm.createObject<Logs>()
             record.apply {
                 date = Calendar.getInstance().time
-                time = if(isStart) exTime else 60
+                time = if(isStart) exTime else (restTime - exTime)
                 isWorkout = isStart
             }
 
