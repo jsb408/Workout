@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.goldouble.android.workout.Logs
+import com.goldouble.android.workout.db.Logs
 import com.goldouble.android.workout.R
 import io.realm.OrderedRealmCollection
 import io.realm.RealmRecyclerViewAdapter
@@ -35,13 +35,18 @@ class CurLogAdapter(data: OrderedRealmCollection<Logs>) : RealmRecyclerViewAdapt
     inner class ItemViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         fun bindLogsData(data: Logs?) {
             data?.let {
-                val timeText = "${it.time / 60}${view.context.getString(R.string.minute)} ${it.time % 60}${view.context.getString(R.string.second)}"
                 view.apply {
-                    isWorkoutLbl.text = view.context.getString(if (it.isWorkout) R.string.workout else R.string.rest)
-                    timeLbl.text = timeText
+                    val setText = "${it.set} ${view.context.getString(R.string.set)}"
+                    setLbl.text = setText
+                    workoutTimeLbl.text = timeText(it.workoutTime)
+                    restTimeLbl.text = timeText(it.restTime)
                     dateLbl.text = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(it.date)
                 }
             }
+        }
+
+        fun timeText(time: Int): String {
+            return "${time / 60}${view.context.getString(R.string.minute)} ${time % 60}${view.context.getString(R.string.second)}"
         }
     }
 }

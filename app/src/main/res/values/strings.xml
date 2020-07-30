@@ -14,9 +14,18 @@
 
     <string name="timer_curRecordLbl">Current Logs</string>
 
+    <string name="wakeup_time">Wake up Time</string>
+    <string name="sleep_time">Sleep Time</string>
+
+    <string name="bedtime_haveto1">If you want to wake up at</string>
+    <string name="bedtime_haveto2">You should try to fall asleep at one of these times</string>
+    <string name="bedtime_planto1">If you fall asleep at</string>
+    <string name="bedtime_planto2">You should wake up at</string>
+
     <string name="workout">Workout</string>
     <string name="rest">Rest</string>
 
     <string name="minute">m</string>
     <string name="second">s</string>
+    <string name="set">SET</string>
 </resources>

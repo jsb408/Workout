@@ -3,4 +3,16 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+
+    <color name="background">#F2F5FC</color>
+    <color name="buttonTextColor">#FFFFFF</color>
+
+    <color name="gradient1">#3F47A1</color>
+    <color name="gradient2">#293077</color>
+
+    <color name="workout_gradient1">#FF4E54</color>
+    <color name="workout_gradient2">#FF1E25</color>
+
+    <color name="rest_gradient1">#5DD158</color>
+    <color name="rest_gradient2">#3FAA3A</color>
 </resources>

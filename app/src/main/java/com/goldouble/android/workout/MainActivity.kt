@@ -14,13 +14,15 @@ class MainActivity : AppCompatActivity() {
         Realm.init(this)
 
         timerBtn.setOnClickListener {
-            val intent = Intent(this, TimerActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, TimerActivity::class.java))
         }
 
         logsBtn.setOnClickListener {
-            val intent = Intent(this, LogsActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, LogsActivity::class.java))
+        }
+
+        sleepBtn.setOnClickListener {
+            startActivity(Intent(this, BedtimeActivity::class.java))
         }
     }
 }

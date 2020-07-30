@@ -1,23 +1,30 @@
 package com.goldouble.android.workout
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import com.goldouble.android.workout.db.Logs
 import io.realm.Realm
 import io.realm.RealmResults
 import kotlinx.android.synthetic.main.activity_logs.*
+import kotlinx.android.synthetic.main.activity_timer_timer.*
+import kotlinx.android.synthetic.main.dialog_number_picker.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import com.github.mikephil.charting.listener.ChartTouchListener as ChartTouchListener1
 
 class LogsActivity : AppCompatActivity() {
     private val realm = Realm.getDefaultInstance()
@@ -49,40 +56,52 @@ class LogsActivity : AppCompatActivity() {
             }
         }
 
-        logLineChart.apply {
+        logBarChart.apply {
             setScaleEnabled(false)
-            axisRight.setDrawLabels(false)
+            axisLeft.axisMinimum = 0.0f
+            axisRight.isEnabled = false
+            xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                setDrawGridLines(false)
+                granularity = 1.0f
+            }
+
             description.isEnabled = false
+            legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
         }
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = getString(R.string.main_logBtnLbl)
 
         setChartData(dateList[0])
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            android.R.id.home -> {
+                finish()
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
     private fun setChartData(date: String) {
-        val workoutTimes = ArrayList<Entry>()
-        val restTimes = ArrayList<Entry>()
+        val times = ArrayList<BarEntry>()
 
         labelList.clear()
         logs.filter {
             SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(it.date) == date
         }.forEach {
-            (if(it.isWorkout) workoutTimes else restTimes).add(Entry(labelList.size.toFloat(), it.time.toFloat()))
-            labelList.add(SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(it.date))
+            times.add(BarEntry(labelList.size.toFloat(), floatArrayOf(it.workoutTime.toFloat(), it.restTime.toFloat())))
+            labelList.add("${it.set}${getString(R.string.set)}")
         }
 
-        logLineChart.apply {
-            data = LineData().apply {
-                addDataSet(LineDataSet(workoutTimes, getString(R.string.workout)).apply {
-                    color = Color.RED
-                    circleColors = listOf(Color.RED)
-                    mode = LineDataSet.Mode.HORIZONTAL_BEZIER
-                    lineWidth = 2.5f
-                })
-                addDataSet(LineDataSet(restTimes, getString(R.string.rest)).apply {
-                    color = Color.BLUE
-                    circleColors = listOf(Color.BLUE)
-                    mode = LineDataSet.Mode.HORIZONTAL_BEZIER
-                    lineWidth = 2.5f
+        logBarChart.apply {
+            data = BarData().apply {
+                addDataSet(BarDataSet(times, null).apply {
+                    colors = listOf(Color.RED, Color.BLUE)
+                    stackLabels = arrayOf(getString(R.string.workout), getString(R.string.rest))
                 })
                 setValueTextSize(9f)
                 setValueFormatter(object: ValueFormatter() {
@@ -98,7 +117,6 @@ class LogsActivity : AppCompatActivity() {
                         return labelList[value.toInt()]
                     }
                 }
-                setLabelCount(labelList.size, true)
             }
 
             invalidate()

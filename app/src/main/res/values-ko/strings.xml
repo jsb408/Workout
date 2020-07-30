@@ -18,4 +18,11 @@
     <string name="timer_restFinish_content">휴식시간이 종료되었습니다.</string>
     <string name="submit">확인</string>
     <string name="main_sleepBtnLbl">잠 들 시간</string>
+    <string name="bedtime_haveto1">이 시간에 일어나려면</string>
+    <string name="bedtime_haveto2">이 시간에 자야합니다</string>
+    <string name="bedtime_planto1">이 시간에 잠들면</string>
+    <string name="bedtime_planto2">이 시간에 일어나야합니다</string>
+    <string name="wakeup_time">일어날 시간</string>
+    <string name="sleep_time">잠 들 시간</string>
+    <string name="set">세트</string>
 </resources>
