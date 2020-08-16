@@ -21,3 +21,11 @@ n
 >app/src/main/java/com/goldouble/android/workout/db/LogsData.kt,2\f\2fb821b1de60e7282ad0881d65674df5a2c30d0f
 r
 Bapp/src/main/java/com/goldouble/android/workout/BedtimeActivity.kt,5\6\56b8bc2f49709b5bfded6b176fa8c24158631648
+q
+Aapp/src/main/java/com/goldouble/android/workout/SplashActivity.kt,3\9\3902898a158964e4df926d60af25afa96fca28c1
+}
+Mapp/src/main/java/com/goldouble/android/workout/customView/CustomActionbar.kt,7\1\71f536a4752afa2cd5ad02b9b73b7c5cea02d111
+s
+Capp/src/main/java/com/goldouble/android/workout/SettingsActivity.kt,d\1\d182e8e8c4d2abd7580d96aed6be9369ec3227a0
+y
+Iapp/src/main/java/com/goldouble/android/workout/adapter/CurLogsAdapter.kt,c\a\ca3df22dc25721c99d312d7bd5c8b770d081d537

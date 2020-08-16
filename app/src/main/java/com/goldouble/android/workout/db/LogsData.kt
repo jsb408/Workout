@@ -4,6 +4,7 @@ import io.realm.RealmObject
 import java.util.*
 
 open class Logs(
+    var round: Int = 1,
     var set: Int = 1,
     var date: Date = Date(),
     var workoutTime: Int = 0,

@@ -4,7 +4,7 @@
     <item
         android:id="@+id/set_rest_time"
         android:checkable="true"
-        android:icon="@drawable/ic_baseline_timer_24"
+        android:icon="@drawable/ic_baseline_settings_32"
         android:title="@string/timer_restBtnLbl"
         app:showAsAction="ifRoom"/>
 </menu>

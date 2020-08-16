@@ -1,23 +1,26 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/gradient1</item>
-        <item name="colorPrimaryDark">@color/gradient2</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-
         <item name="android:windowBackground">@color/background</item>
-
         <item name="buttonStyle">@style/CustomButtonStyle</item>
+        <item name="android:fontFamily">@font/futura_medium_bt</item>
+        <item name="android:textColor">@color/textColor</item>
+
+        <item name="android:homeAsUpIndicator">@drawable/ic_baseline_arrow_back_32</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="NightAppTheme" parent="AppTheme">
+        <item name="android:windowBackground">@color/nightBackground</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="CustomButtonStyle" parent="android:Widget.Material.Light.Button">
         <item name="android:textColor">@color/buttonTextColor</item>
-        <item name="android:backgroundTint">@color/gradient2</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:background">@drawable/radius_button</item>
     </style>
 </resources>

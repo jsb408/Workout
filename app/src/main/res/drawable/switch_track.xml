@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <size
+                android:width="84dp"
+                android:height="20dp" />
+            <solid
+                android:color="@color/indicatorBack" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/indicatorBack"/>
+            <corners android:radius="120dp"/>
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_baseline_bedtime_24"
+        android:right="59dp" android:width="15dp" android:height="15dp"
+        android:gravity="center"/>
+    <item android:drawable="@drawable/ic_baseline_wb_sunny_24"
+        android:left="59dp" android:width="15dp" android:height="15dp"
+        android:gravity="center"/>
+</layer-list>

@@ -1,31 +1,53 @@
 <resources>
     <string name="app_name" translatable="false">Workout</string>
+
     <string name="main_timerBtnLbl">Timer</string>
-    <string name="main_logBtnLbl">Logs</string>
+    <string name="main_logBtnLbl">Statistics</string>
     <string name="main_sleepBtnLbl">Bedtime</string>
 
     <string name="timer_startBtnLbl">Start</string>
     <string name="timer_restBtnLbl">Rest</string>
     <string name="timer_finishBtnLbl">Finish</string>
 
+    <string name="tapToStart">Tap to start</string>
+    <string name="tapToPause">Tap to pause</string>
+    <string name="tapToResume">Tap to resume\nDoubleTap to next step</string>
+    <string name="tapToSkip">DoubleTap to skip</string>
+
+    <string name="timerSettings">Timer Settings</string>
+
     <string name="timer_restFinish_title">Let\'s Workout!</string>
     <string name="timer_restFinish_content">Your rest time is finished. Go Workout!</string>
     <string name="submit">OK</string>
 
-    <string name="timer_curRecordLbl">Current Logs</string>
+    <string name="timer_curRecordLbl">Log</string>
 
-    <string name="wakeup_time">Wake up Time</string>
-    <string name="sleep_time">Sleep Time</string>
+    <string name="estimateTime">Estimate Time</string>
+    <string name="workoutTimerType">Workout timer type</string>
+    <string name="workoutTimerType_description">*For accurate recording, select count up</string>
+    <string name="countUp">Countup</string>
+    <string name="countDown">Countdown</string>
+    <string name="workoutTime">Workout Time</string>
+    <string name="restTime">Rest Time</string>
+    <string name="setInterval">Set Interval</string>
+    <string name="roundInterval">Round Interval</string>
 
-    <string name="bedtime_haveto1">If you want to wake up at</string>
-    <string name="bedtime_haveto2">You should try to fall asleep at one of these times</string>
-    <string name="bedtime_planto1">If you fall asleep at</string>
-    <string name="bedtime_planto2">You should wake up at</string>
+    <string name="wakeup_time">Rise &amp; Shine</string>
+    <string name="sleep_time">Bedtime</string>
 
+    <string name="bedtime_haveto1">Select the time you want to wake up</string>
+    <string name="bedtime_haveto2">We recommend the time below for best sleep quality</string>
+    <string name="bedtime_planto1">Select the time you want to sleep</string>
+    <string name="bedtime_planto2">We recommend the time below for best sleep quality</string>
+
+    <string name="stop">Stop</string>
     <string name="workout">Workout</string>
+    <string name="pause">Pause</string>
     <string name="rest">Rest</string>
+    <string name="interval">Interval</string>
 
     <string name="minute">m</string>
     <string name="second">s</string>
     <string name="set">SET</string>
+    <string name="round">ROUND</string>
 </resources>

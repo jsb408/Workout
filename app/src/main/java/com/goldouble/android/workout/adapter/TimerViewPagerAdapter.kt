@@ -1,24 +1,35 @@
 package com.goldouble.android.workout.adapter
 
-import android.app.AlertDialog
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.content.Context
+import android.os.Bundle
+import android.os.Handler
+import android.os.Message
+import android.util.Log
+import android.view.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.goldouble.android.workout.R
 import com.goldouble.android.workout.TimerActivity
+import com.goldouble.android.workout.adapter.TimerViewPagerAdapter.Workout.*
 import com.goldouble.android.workout.db.Logs
 import io.realm.Realm
 import io.realm.kotlin.createObject
 import kotlinx.android.synthetic.main.activity_timer_cur_logs.view.*
 import kotlinx.android.synthetic.main.activity_timer_timer.view.*
-import kotlinx.android.synthetic.main.dialog_number_picker.view.*
 import java.text.DecimalFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.*
 
 class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<TimerViewPagerAdapter.PagerViewHolder>() {
-    enum class Workout { STOP, WORKOUT, REST }
+    enum class Workout(val color: Int, val title: Int, val phrase: Int) {
+        STOP(R.color.timerStopped, R.string.stop, R.string.tapToStart),
+        WORKOUT(R.color.timerStarted, R.string.workout, R.string.tapToPause),
+        PAUSE(R.color.timerPaused, R.string.pause, R.string.tapToResume),
+        REST(R.color.timerStarted, R.string.rest, R.string.tapToPause),
+        INTERVAL(R.color.timerWaited, R.string.interval, R.string.tapToSkip)
+    }
 
     val layouts = listOf(
         R.layout.activity_timer_timer,
@@ -41,102 +52,220 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
 
     inner class PagerViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         private val realm = Realm.getDefaultInstance()
+        private val prefs = activity.getSharedPreferences("TimerSettings",Context.MODE_PRIVATE)
 
         private var workoutedTime = 0
+        var dfTime = 0
         var exTime = 0
-        var setNum = 1
-        var state = Workout.STOP
+        set(value) {
+            field = value
+            view.apply {
+                val timeText = "${value / 60}:${DecimalFormat("00").format(value % 60)}"
+                workoutTimeLbl.text = timeText
+            }
+        }
+
+        private var setNum = 1
+        private var roundNum = 1
+
+        private var state = STOP
+        set(value) {
+            field = value
+            view.apply {
+                tapToLbl.text = context.getString(value.phrase)
+                timerLayout.setBackgroundColor(context.getColor(value.color))
+                pauseLbl.visibility = if(value == PAUSE) View.VISIBLE else {
+                    workoutStatusLbl.text = context.getString(value.title)
+                    View.GONE
+                }
+            }
+        }
 
         fun bindData(position: Int) {
             when(layouts[position]) {
                 R.layout.activity_timer_timer -> { //타이머
                     view.apply {
-                        val defaultSetText = "1" + context.getString(R.string.set)
+                        val defaultSetText = "1 " + context.getString(R.string.set)
                         setLbl.text = defaultSetText
 
-                        timerCardView.setOnClickListener {
-                            when(state) {
-                                Workout.STOP, Workout.REST ->
-                                    startTimer(Workout.WORKOUT)
-                                Workout.WORKOUT -> {
-                                    activity.mTimer?.let { insertRecord() }
-                                    startTimer(Workout.REST)
-                                }
-                            }
-                        }
-                        startBtn.setOnClickListener {
-                            activity.mTimer?.let { insertRecord() }
-                            startTimer(Workout.WORKOUT)
-                        }
-                        restBtn.setOnClickListener {
-                            workoutedTime = exTime
-                            startTimer(Workout.REST)
-                        }
-                        finishBtn.setOnClickListener {
-                            activity.mTimer?.cancel()
-                            activity.finish()
-                        }
-                        val defaultRestTime = context.getString(R.string.rest) + " 1" + context.getString(R.string.minute)
-                        restTimeBtn.text = defaultRestTime
-                        additionalInfoCardView.setOnClickListener {
-                            val numberPickerDialog = activity.layoutInflater.inflate(R.layout.dialog_number_picker, null).apply {
-                                numberPicker.maxValue = 10
-                                numberPicker.minValue = 1
-                                numberPicker.value = activity.rsTime / 60
-                            }
+                        exTime = if(prefs.getBoolean("timer_type", true)) prefs.getInt("workout_time", 5) * 60 else 0
 
-                            AlertDialog.Builder(context).setView(numberPickerDialog)
-                                .setPositiveButton(R.string.submit) { _, _ ->
-                                    val selectedTime = numberPickerDialog.numberPicker.value
-                                    val restTimeText = "${context.getString(R.string.rest)} ${selectedTime}${context.getString(R.string.minute)}"
-                                    restTimeBtn.text = restTimeText
-                                    activity.rsTime = selectedTime * 60
+                        val restTimeText = "${prefs.getInt("rest_time", 1)}:00"
+                        nextTimeLbl.text = restTimeText
+
+                        val handler = Handler(Handler.Callback {
+                            if (it.data.getString("click") == "Single") {
+                                when (state) {
+                                    STOP -> workout()
+                                    WORKOUT -> timerPause()
+                                    PAUSE -> state = if (workoutedTime > 0) REST else WORKOUT
+                                    REST -> timerPause()
+                                    INTERVAL -> Unit
                                 }
-                                .show()
+                                Log.d("WORKOUTED TIME", workoutedTime.toString())
+                            } else { //더블탭
+                                when(state) {
+                                    PAUSE -> {
+                                        if (workoutedTime == 0) {
+                                            workoutedTime = if(prefs.getBoolean("timer_type", true))
+                                                prefs.getInt("workout_time", 5) * 60 - exTime else exTime
+                                            rest()
+                                        } else {
+                                            workoutedTime = 0
+                                            interval()
+                                        }
+                                    }
+                                    INTERVAL -> workout()
+                                    else -> Unit
+                                }
+                            }
+                            true
+                        })
+
+                        val gestureDetector = GestureDetector(context, object: GestureDetector.OnGestureListener {
+                            override fun onDown(e: MotionEvent?): Boolean {
+                                return true
+                            }
+                            override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+                                return true
+                            }
+                            override fun onLongPress(e: MotionEvent?) = Unit
+                            override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+                                return true
+                            }
+                            override fun onShowPress(e: MotionEvent?) = Unit
+                            override fun onSingleTapUp(e: MotionEvent?): Boolean {
+                                val message = Message().apply {data = Bundle().apply { putString("click", "Single") } }
+                                handler.sendMessageDelayed(message, 100)
+                                return true
+                            }
+                        }).also {
+                            it.setOnDoubleTapListener(object : GestureDetector.OnDoubleTapListener {
+                                override fun onDoubleTap(e: MotionEvent?): Boolean {
+                                    handler.removeCallbacksAndMessages(null)
+
+                                    val message = Message().apply {data = Bundle().apply { putString("click", "더블클릭") } }
+                                    handler.sendMessage(message)
+
+                                    return true
+                                }
+
+                                override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
+                                    return true
+                                }
+
+                                override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                                    return true
+                                }
+                            })
+                        }
+
+                        timerCardView.setOnTouchListener { v, event ->
+                            if(event.action == MotionEvent.ACTION_UP) v.performClick()
+                            gestureDetector.onTouchEvent(event)
                         }
                     }
                 }
                 R.layout.activity_timer_cur_logs -> { //최근기록
-                    realm.addChangeListener {
-                        view.curLogRecyclerView.adapter = CurLogAdapter(it.where(Logs::class.java).findAll())
-                        view.curLogRecyclerView.layoutManager = LinearLayoutManager(view.context)
-                    }
-                    view.curLogRecyclerView.adapter = CurLogAdapter(realm.where(Logs::class.java).findAll())
-                    view.curLogRecyclerView.layoutManager = LinearLayoutManager(view.context)
+                    bindAdapter()
+                    realm.addChangeListener { bindAdapter() }
                 }
             }
         }
 
-        private fun startTimer(workout: Workout) {
-            val timerTask = object: TimerTask() {
+        private fun timerPause() {
+            state = PAUSE
+        }
+
+        private fun workout() {
+            state = WORKOUT
+
+            exTime = if (prefs.getBoolean("timer_type", true)) prefs.getInt("workout_time", 5) * 60 else 0
+
+            val countUpTask = object: TimerTask() {
                 override fun run() {
-                    activity.runOnUiThread {
-                        if(workout == Workout.WORKOUT) exTime++
-                        else if (--exTime == 0) {
-                            AlertDialog.Builder(view.context)
-                                .setTitle(R.string.timer_restFinish_title)
-                                .setMessage(R.string.timer_restFinish_content)
-                                .setPositiveButton(R.string.submit) { _, _ -> }
-                                .show()
-                            activity.mTimer?.cancel()
-                            insertRecord()
+                    if (state != PAUSE) {
+                        activity.runOnUiThread {
+                            exTime++
                         }
-                        val timeText = "${exTime / 60}:${DecimalFormat("00").format(exTime % 60)}"
-                        view.workoutTimeLbl.text = timeText
                     }
                 }
             }
+
+            val countDownTask = object: TimerTask() {
+                override fun run() {
+                    if (state != PAUSE) {
+                        activity.runOnUiThread {
+                            if (--exTime == 0) {
+                                activity.mTimer?.cancel()
+                            }
+                        }
+                    }
+                }
+            }
+
+            view.apply {
+                val restTime = "${prefs.getInt("rest_time", 1)}:00"
+
+                nextStatusLbl.text = context.getString(R.string.rest)
+                nextTimeLbl.text = restTime
+            }
+
             activity.mTimer?.cancel()
             activity.mTimer = Timer()
-            exTime = if(workout == Workout.WORKOUT) -1 else activity.rsTime + 1
-            activity.mTimer?.schedule(timerTask, 0, 1000)
+            activity.mTimer!!.schedule(if(prefs.getBoolean("timer_type", true)) countDownTask else countUpTask, 1000, 1000)
+        }
 
-            view.timerLayout.setBackgroundResource(if (workout == Workout.WORKOUT) R.drawable.cardview_workout_gradient else R.drawable.cardview_rest_gradient)
+        private fun rest() {
+            state = REST
 
-            state = workout
+            exTime = prefs.getInt("rest_time", 1) * 60
 
-            view.restBtn.isEnabled = !view.restBtn.isEnabled
-            view.startBtn.isEnabled = !view.startBtn.isEnabled
+            val countDownTask = object: TimerTask() {
+                override fun run() {
+                    if (state != PAUSE) {
+                        activity.runOnUiThread {
+                            if (--exTime == 0) {
+                                activity.mTimer?.cancel()
+                                interval()
+                            }
+                        }
+                    }
+                }
+            }
+
+            view.apply {
+                val workoutTime = "${prefs.getInt("workout_time", 5)}:00"
+
+                nextStatusLbl.text = context.getString(R.string.workout)
+                nextTimeLbl.text = workoutTime
+            }
+
+            activity.mTimer?.cancel()
+            activity.mTimer = Timer()
+            activity.mTimer!!.schedule(countDownTask, 1000, 1000)
+        }
+
+        private fun interval() {
+            state = INTERVAL
+
+            exTime = prefs.getInt("set_interval", 3)
+
+            val countDownTask = object: TimerTask() {
+                override fun run() {
+                    activity.runOnUiThread {
+                        if (--exTime == 0) {
+                            workout()
+                        }
+                    }
+                }
+            }
+
+            setNum++
+
+            activity.mTimer?.cancel()
+            activity.mTimer = Timer()
+            activity.mTimer!!.schedule(countDownTask, 1000, 1000)
         }
 
         private fun insertRecord() {
@@ -144,16 +273,30 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
 
             val record = realm.createObject<Logs>()
             record.apply {
+                round = roundNum
                 set = setNum++
                 date = Calendar.getInstance().time
                 workoutTime = workoutedTime
-                restTime = activity.rsTime - exTime
+                restTime = prefs.getInt("rest_time", 1) * 60 - exTime
             }
 
             realm.commitTransaction()
 
-            val setText = "$setNum${view.context.getString(R.string.set)}"
+            val setText = "$setNum ${view.context.getString(R.string.set)}"
             view.setLbl.text = setText
+        }
+
+        private fun bindAdapter() {
+            val logsData = realm.where(Logs::class.java).findAll()
+            val roundArray = arrayListOf<List<Logs>>()
+            for (i in 1 .. (logsData.max("round")?.toInt() ?: 0))
+                roundArray.add(logsData.filter {
+                    val ldt = Instant.ofEpochMilli(it.date.time).atZone(ZoneId.systemDefault()).toLocalDateTime()
+                    ldt.month == LocalDate.now().month && ldt.dayOfMonth == LocalDate.now().dayOfMonth && it.round == i
+                })
+
+            view.curLogRecyclerView.adapter = CurLogsAdapter(roundArray)
+            view.curLogRecyclerView.layoutManager = LinearLayoutManager(view.context)
         }
     }
 }

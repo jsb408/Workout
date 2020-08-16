@@ -1,11 +1,15 @@
 package com.goldouble.android.workout
 
+import android.animation.ArgbEvaluator
+import android.animation.ObjectAnimator
+import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.ThemeUtils
+import com.goldouble.android.workout.customView.CustomActionbar
 import kotlinx.android.synthetic.main.activity_bedtime.*
 import java.text.DecimalFormat
-import java.time.LocalDateTime
 
 class BedtimeActivity : AppCompatActivity() {
     val MINUTE_OF_DAY = 1440
@@ -19,6 +23,11 @@ class BedtimeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bedtime)
+
+        val customActionbar = CustomActionbar(this).apply {
+            setToolbar()
+            setTitle(R.string.main_sleepBtnLbl)
+        }
 
         hourPicker.apply {
             maxValue = 23
@@ -40,27 +49,29 @@ class BedtimeActivity : AppCompatActivity() {
             }
         }
 
-        timeTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            when(checkedId) {
-                R.id.sleepTimeRadio -> {
-                    bedtimeLbl.text = getString(R.string.main_sleepBtnLbl)
-                    infoText1Lbl.text = getString(R.string.bedtime_haveto1)
-                    infoText2Lbl.text = getString(R.string.bedtime_haveto2)
-                    isSleep = true
-                }
-
-                R.id.wakeupTimeRadio -> {
-                    bedtimeLbl.text = getString(R.string.wakeup_time)
-                    infoText1Lbl.text = getString(R.string.bedtime_planto1)
-                    infoText2Lbl.text = getString(R.string.bedtime_planto2)
-                    isSleep = false
-                }
+        timeTypeSwitch.setOnCheckedChangeListener { _, checkedId ->
+            if(checkedId) {
+                ObjectAnimator.ofObject(bedtimeConstraintLayout, "backgroundColor", ArgbEvaluator(), getColor(R.color.nightBackground), getColor(R.color.background))
+                    .apply {
+                        duration = 1500
+                        start()
+                    }
+                infoText1Lbl.text = getString(R.string.bedtime_planto1)
+                infoText2Lbl.text = getString(R.string.bedtime_planto2)
+                customActionbar.setTitle(R.string.wakeup_time)
+            } else {
+                ObjectAnimator.ofObject( bedtimeConstraintLayout, "backgroundColor", ArgbEvaluator(), getColor(R.color.background), getColor(R.color.nightBackground))
+                    .apply {
+                        duration = 1500
+                        start()
+                    }
+                infoText1Lbl.text = getString(R.string.bedtime_haveto1)
+                infoText2Lbl.text = getString(R.string.bedtime_haveto2)
+                customActionbar.setTitle(R.string.sleep_time)
             }
+            isSleep = !checkedId
             calculateTime()
         }
-
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.main_sleepBtnLbl)
 
         calculateTime()
     }
