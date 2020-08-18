@@ -148,6 +148,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/goldouble/android/workout/adapter/LogsViewPagerAdapter.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/goldouble/android/workout/adapter/TimerViewPagerAdapter.kt">
           <value>
             <set />
@@ -164,6 +169,16 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/goldouble/android/workout/customView/CustomActionbar.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/goldouble/android/workout/customView/CustomBarChartRenderer.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/java/com/goldouble/android/workout/customView/CustomTabLayout.kt">
           <value>
             <set />
           </value>
@@ -209,6 +224,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/app/src/main/res/drawable/custom_indicator.xml">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/res/drawable/custom_log_indicator.xml">
           <value>
             <set />
           </value>
@@ -269,6 +289,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/app/src/main/res/layout/activity_logs.xml">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/app/src/main/res/layout/activity_logs_layout.xml">
           <value>
             <set />
           </value>

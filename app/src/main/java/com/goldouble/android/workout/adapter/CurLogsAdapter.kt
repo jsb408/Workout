@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.goldouble.android.workout.R
 import com.goldouble.android.workout.db.Logs
+import kotlinx.android.synthetic.main.activity_timer_cur_logs.view.*
 import kotlinx.android.synthetic.main.list_item_cur_logs.view.*
 
 class CurLogsAdapter(val data: ArrayList<List<Logs>>) : RecyclerView.Adapter<CurLogsAdapter.ItemViewHolder>() {
@@ -24,8 +25,12 @@ class CurLogsAdapter(val data: ArrayList<List<Logs>>) : RecyclerView.Adapter<Cur
     inner class ItemViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         fun bindLogsData(data: List<Logs>?) {
             data?.let {
-                view.logsRecyclerView.adapter = CurLogAdapter(data)
-                view.logsRecyclerView.layoutManager = LinearLayoutManager(view.context)
+                view.apply {
+                    logsRecyclerView.apply {
+                        adapter = CurLogAdapter(data)
+                        layoutManager = LinearLayoutManager(view.context)
+                    }
+                }
             }
         }
     }

@@ -6,6 +6,7 @@
 
     <color name="titleColor">#2a2e43</color>
     <color name="textColor">#454f63</color>
+    <color name="subTextColor">#78849E</color>
 
     <color name="background">#f5f5f5</color>
     <color name="nightBackground">#2A2E43</color>
@@ -23,4 +24,9 @@
 
     <color name="indicator">#3acce1</color>
     <color name="indicatorBack">#D3D5D9</color>
+
+    <color name="log_indicator1">#665EFF</color>
+    <color name="log_indicator2">#5773FF</color>
+    <color name="log_indicator3">#3497FD</color>
+    <color name="log_indicator4">#3ACCE1</color>
 </resources>

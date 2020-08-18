@@ -21,10 +21,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:tabBackground="@drawable/custom_indicator"
-        app:tabGravity="fill"
         app:tabIndicatorColor="@color/indicator"
-        app:tabIndicatorHeight="8dp"
-        app:tabMode="fixed">
+        app:tabIndicatorHeight="8dp">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"

@@ -56,11 +56,31 @@ class BedtimeActivity : AppCompatActivity() {
                         duration = 1500
                         start()
                     }
+                ObjectAnimator.ofObject(infoText1Lbl, "textColor", ArgbEvaluator(), Color.WHITE, getColor(R.color.textColor))
+                    .apply {
+                        duration = 1500
+                        start()
+                    }
+                ObjectAnimator.ofObject(infoText2Lbl, "textColor", ArgbEvaluator(), Color.WHITE, getColor(R.color.textColor))
+                    .apply {
+                        duration = 1500
+                        start()
+                    }
                 infoText1Lbl.text = getString(R.string.bedtime_planto1)
                 infoText2Lbl.text = getString(R.string.bedtime_planto2)
                 customActionbar.setTitle(R.string.wakeup_time)
             } else {
                 ObjectAnimator.ofObject( bedtimeConstraintLayout, "backgroundColor", ArgbEvaluator(), getColor(R.color.background), getColor(R.color.nightBackground))
+                    .apply {
+                        duration = 1500
+                        start()
+                    }
+                ObjectAnimator.ofObject(infoText1Lbl, "textColor", ArgbEvaluator(), getColor(R.color.textColor), Color.WHITE)
+                    .apply {
+                        duration = 1500
+                        start()
+                    }
+                ObjectAnimator.ofObject(infoText2Lbl, "textColor", ArgbEvaluator(), getColor(R.color.textColor), Color.WHITE)
                     .apply {
                         duration = 1500
                         start()

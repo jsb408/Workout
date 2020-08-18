@@ -80,10 +80,10 @@ class SettingsActivity : AppCompatActivity() {
             setText.text = getInt("set_number", Button.SET.def).toString()
             roundText.text = getInt("round_number", Button.ROUND.def).toString()
 
-            val setIntervalText = "${getInt("set_interval", Button.REST.def)}${getString(R.string.second)}"
+            val setIntervalText = "${getInt("set_interval", Button.SETINTERVAL.def)}${getString(R.string.second)}"
             setIntervalBtn.text = setIntervalText
 
-            val roundIntervalText = "${getInt("round_interval", Button.REST.def)}${getString(R.string.second)}"
+            val roundIntervalText = "${getInt("round_interval", Button.ROUNDINTERVAL.def)}${getString(R.string.second)}"
             roundIntervalBtn.text = roundIntervalText
 
 
