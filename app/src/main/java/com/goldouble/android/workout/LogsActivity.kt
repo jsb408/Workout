@@ -18,6 +18,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import io.realm.Realm
 import io.realm.RealmResults
 import kotlinx.android.synthetic.main.activity_logs.*
+import kotlinx.android.synthetic.main.activity_logs_layout.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList

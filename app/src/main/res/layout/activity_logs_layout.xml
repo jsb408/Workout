@@ -22,39 +22,56 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/imageView3"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="52dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/radius_button" />
-
-            <TextView
-                android:id="@+id/textView10"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="@string/second"
-                android:textSize="28sp"
-                app:layout_constraintBottom_toBottomOf="@+id/imageView3"
-                app:layout_constraintStart_toEndOf="@+id/imageView3"
-                app:layout_constraintTop_toTopOf="@+id/imageView3" />
-
-            <com.github.mikephil.charting.charts.BarChart
-                android:id="@+id/logBarChart"
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/chartTabLayout"
                 android:layout_width="match_parent"
-                android:layout_height="215dp"
-                android:layout_marginStart="24dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="75dp"
                 android:layout_marginTop="12dp"
-                android:layout_marginEnd="24dp"
-                android:layout_marginBottom="12dp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginEnd="75dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tabIndicator="@drawable/custom_chart_indicator"
+                app:tabIndicatorColor="@color/log_indicator2"
+                app:tabIndicatorFullWidth="true"
+                app:tabIndicatorGravity="center"
+                app:tabIndicatorHeight="32dp"
+                app:tabMaxWidth="300dp"
+                app:tabRippleColor="#FFFFFFFF"
+                app:tabSelectedTextColor="@android:color/white">
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/workout" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rest" />
+
+            </com.google.android.material.tabs.TabLayout>
+
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="24dp"
+                android:background="?android:attr/listDivider"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/chartTabLayout" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/chartViewPager"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/divider2" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
@@ -82,7 +99,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView2"
+                    android:id="@+id/setNumText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="4"
@@ -112,7 +129,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView4"
+                    android:id="@+id/roundNumText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="5"
@@ -128,35 +145,6 @@
                     android:textColor="@color/subTextColor" />
             </LinearLayout>
 
-            <View
-                android:id="@+id/divider5"
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:layout_marginVertical="16dp"
-                android:background="?android:attr/listDivider" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/textView5"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="3"
-                    android:textAlignment="center"
-                    android:textSize="28sp" />
-
-                <TextView
-                    android:id="@+id/textView9"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/interval"
-                    android:textAlignment="center"
-                    android:textColor="@color/subTextColor" />
-            </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

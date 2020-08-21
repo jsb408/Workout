@@ -15,6 +15,7 @@ import io.realm.Realm
 import io.realm.kotlin.createObject
 import kotlinx.android.synthetic.main.activity_timer_cur_logs.view.*
 import kotlinx.android.synthetic.main.activity_timer_timer.view.*
+import kotlinx.android.synthetic.main.list_item_cur_logs.view.*
 import java.text.DecimalFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -310,7 +311,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         private fun bindAdapter() {
             val logsData = realm.where(Logs::class.java).findAll()
             val roundArray = arrayListOf<List<Logs>>()
-            for (i in 1 .. (logsData.max("round")?.toInt() ?: 0))
+            for (i in 1 .. logsData.last()!!.round)
                 roundArray.add(logsData.filter {
                     val ldt = Instant.ofEpochMilli(it.date.time).atZone(ZoneId.systemDefault()).toLocalDateTime()
                     ldt.month == LocalDate.now().month && ldt.dayOfMonth == LocalDate.now().dayOfMonth && it.round == i

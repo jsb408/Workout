@@ -26,6 +26,9 @@ class CurLogsAdapter(val data: ArrayList<List<Logs>>) : RecyclerView.Adapter<Cur
         fun bindLogsData(data: List<Logs>?) {
             data?.let {
                 view.apply {
+                    val roundCount = "${data[0].round}${when(data[0].round % 10) { 1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th" }}"
+                    roundCountText.text = roundCount
+
                     logsRecyclerView.apply {
                         adapter = CurLogAdapter(data)
                         layoutManager = LinearLayoutManager(view.context)
