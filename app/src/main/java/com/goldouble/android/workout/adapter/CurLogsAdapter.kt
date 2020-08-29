@@ -7,10 +7,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.goldouble.android.workout.R
 import com.goldouble.android.workout.db.Logs
-import kotlinx.android.synthetic.main.activity_timer_cur_logs.view.*
 import kotlinx.android.synthetic.main.list_item_cur_logs.view.*
 
-class CurLogsAdapter(val data: ArrayList<List<Logs>>) : RecyclerView.Adapter<CurLogsAdapter.ItemViewHolder>() {
+class CurLogsAdapter(private val data: ArrayList<List<Logs>>) : RecyclerView.Adapter<CurLogsAdapter.ItemViewHolder>() {
     override fun getItemCount(): Int = data.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -22,11 +21,17 @@ class CurLogsAdapter(val data: ArrayList<List<Logs>>) : RecyclerView.Adapter<Cur
         holder.bindLogsData(data[position])
     }
 
-    inner class ItemViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+    fun getAllItemCount(): Int {
+        var count = 0
+        data.forEach { count += it.size }
+        return count
+    }
+
+    class ItemViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         fun bindLogsData(data: List<Logs>?) {
             data?.let {
                 view.apply {
-                    val roundCount = "${data[0].round}${when(data[0].round % 10) { 1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th" }}"
+                    val roundCount = "${data[0].round}${when (data[0].round % 10) {1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th" }}"
                     roundCountText.text = roundCount
 
                     logsRecyclerView.apply {

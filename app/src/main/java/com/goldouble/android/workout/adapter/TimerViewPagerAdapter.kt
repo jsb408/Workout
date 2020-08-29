@@ -1,10 +1,12 @@
 package com.goldouble.android.workout.adapter
 
 import android.content.Context
+import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.view.*
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.goldouble.android.workout.R
@@ -15,7 +17,6 @@ import io.realm.Realm
 import io.realm.kotlin.createObject
 import kotlinx.android.synthetic.main.activity_timer_cur_logs.view.*
 import kotlinx.android.synthetic.main.activity_timer_timer.view.*
-import kotlinx.android.synthetic.main.list_item_cur_logs.view.*
 import java.text.DecimalFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -23,12 +24,14 @@ import java.time.ZoneId
 import java.util.*
 
 class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<TimerViewPagerAdapter.PagerViewHolder>() {
-    enum class Workout(val color: Int, val title: Int, val phrase: Int) {
-        STOP(R.color.timerStopped, R.string.stop, R.string.tapToStart),
-        WORKOUT(R.color.timerStarted, R.string.workout, R.string.tapToPause),
-        PAUSE(R.color.timerPaused, R.string.pause, R.string.tapToResume),
-        REST(R.color.timerStarted, R.string.rest, R.string.tapToPause),
-        INTERVAL(R.color.timerWaited, R.string.interval, R.string.tapToSkip)
+    enum class Workout(val color: Int, val title: Int, val bottomPhrase: Int, val topPhrase: Int = R.string.blank) {
+        STOP(R.color.timerStopped, R.string.blank, R.string.tapToStart),
+        PREWORKOUT(R.color.timerPreWorkout, R.string.blank, R.string.blank, R.string.timer_starts_in),
+        WORKOUT(R.color.timerWorkout, R.string.workout, R.string.tapToPause),
+        PAUSE(R.color.timerPaused, R.string.workout, R.string.tapToResume, R.string.pause),
+        REST(R.color.timerRest, R.string.rest, R.string.tapToPause),
+        INTERVAL(R.color.timerWaited, R.string.interval, R.string.tapToSkip, R.string.next_round_starts_in),
+        FINISH(R.color.timerResult, R.string.result, R.string.congratulation, R.string.finish)
     }
 
     val layouts = listOf(
@@ -55,33 +58,54 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         private val prefs = activity.getSharedPreferences("TimerSettings",Context.MODE_PRIVATE)
 
         private var workoutedTime = 0
-        var dfTime = 0
         var exTime = 0
         set(value) {
             field = value
             view.apply {
-                val timeText = "${value / 60}:${DecimalFormat("00").format(value % 60)}"
-                workoutTimeLbl.text = timeText
+                workoutTimeLbl.text = timeText(value)
+                workoutTimeLbl.textSize = 90f
+                workoutTimeLbl.typeface = ResourcesCompat.getFont(context, R.font.jost_400_book)
             }
         }
 
-        private var setNum = 0
+        var singleTime = 0
+        set(value) {
+            field = value
+            view.apply {
+                workoutTimeLbl.text = value.toString()
+                workoutTimeLbl.textSize = 120f
+                workoutTimeLbl.typeface = ResourcesCompat.getFont(context, R.font.jost_500_medium)
+            }
+        }
+
+        private var setNum = 1
         set(value) {
             field = if (value > prefs.getInt("set_number", 3)) {
-                roundNum++
-                1
-            } else value
+                if (roundNum == prefs.getInt("round_number", 3)) {
+                    activity.mTimer?.cancel()
+                    workoutFinish()
+                    setNum
+                }
+                else {
+                    roundNum++
+                    interval()
+                    1
+                }
+            } else {
+                workout()
+                value
+            }
             view.apply {
-                val setText = "$field${context.getString(R.string.set)}"
+                val setText = "$field/${prefs.getInt("set_number", 3)} ${context.getString(R.string.set)}"
                 setLbl.text = setText
             }
         }
 
-        private var roundNum = 0
+        private var roundNum = 1
         set(value) {
-            field = if (value > prefs.getInt("round_number", 3)) 1 else value
+            field = value
             view.apply {
-                val roundText = "$field${context.getString(R.string.round)}"
+                val roundText = "$field/${prefs.getInt("round_number", 3)} ${context.getString(R.string.round)}"
                 roundLbl.text = roundText
             }
         }
@@ -90,12 +114,10 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         set(value) {
             field = value
             view.apply {
-                tapToLbl.text = context.getString(value.phrase)
+                tapToLbl.text = context.getString(value.bottomPhrase)
+                pauseLbl.text = context.getString(value.topPhrase)
+                if(value != PAUSE) workoutStatusLbl.text = context.getString(value.title)
                 timerLayout.setBackgroundColor(context.getColor(value.color))
-                pauseLbl.visibility = if(value == PAUSE) View.VISIBLE else {
-                    workoutStatusLbl.text = context.getString(value.title)
-                    View.GONE
-                }
             }
         }
 
@@ -103,35 +125,36 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
             when(layouts[position]) {
                 R.layout.activity_timer_timer -> { //타이머
                     view.apply {
-                        setNum = 1
-                        roundNum = 1
+                        exTime = 0
 
-                        exTime = if(prefs.getBoolean("timer_type", true)) prefs.getInt("workout_time", 5) * 60 else 0
+                        val roundText = "$roundNum/${prefs.getInt("round_number", 3)} ${context.getString(R.string.round)}"
+                        roundLbl.text = roundText
 
-                        val restTimeText = "${prefs.getInt("rest_time", 1)}:00"
-                        nextTimeLbl.text = restTimeText
+                        val setText = "$setNum/${prefs.getInt("set_number", 3)} ${context.getString(R.string.set)}"
+                        setLbl.text = setText
 
-                        val handler = Handler(Handler.Callback {
+                        nextTimeLbl.text = timeText(prefs.getInt("workout_time", 5) * 60)
+
+                        val handler = Handler {
                             if (it.data.getString("click") == "Single") {
                                 when (state) {
-                                    STOP -> workout()
+                                    STOP -> preWorkout()
                                     WORKOUT -> timerPause()
                                     PAUSE -> state = if (workoutedTime > 0) REST else WORKOUT
                                     REST -> timerPause()
-                                    INTERVAL -> Unit
+                                    else -> Unit
                                 }
                             } else { //더블탭
-                                when(state) {
+                                when (state) {
                                     PAUSE -> {
                                         if (workoutedTime == 0) {
-                                            workoutedTime = if(prefs.getBoolean("timer_type", true))
-                                                prefs.getInt("workout_time", 5) * 60 - exTime else exTime
-                                            if(workoutedTime == 0) workoutedTime = 1
+                                            workoutedTime = if (prefs.getBoolean("timer_type", true))
+                                                    prefs.getInt("workout_time",5) * 60 - exTime else exTime
+                                            if (workoutedTime == 0) workoutedTime = 1
                                             rest()
                                         } else {
                                             insertRecord()
                                             workoutedTime = 0
-                                            interval()
                                         }
                                     }
                                     INTERVAL -> workout()
@@ -139,7 +162,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                                 }
                             }
                             true
-                        })
+                        }
 
                         val gestureDetector = GestureDetector(context, object: GestureDetector.OnGestureListener {
                             override fun onDown(e: MotionEvent?): Boolean {
@@ -189,14 +212,38 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                     bindAdapter()
                     realm.addChangeListener { bindAdapter() }
 
-                    val roundCount = "${view.curLogRecyclerView.adapter?.itemCount ?: 0}${view.context.getString(R.string.round)}"
+                    val roundCount = "${view.curLogRecyclerView.adapter?.itemCount ?: 0} ${view.context.getString(R.string.round)}"
                     view.roundText.text = roundCount
+
+                    //val setCount = "${(view.curLogRecyclerView.adapter as CurLogsAdapter?)?.getAllItemCount() ?: 0} ${view.context.getString(R.string.set)}"
+                    val setCount = "${prefs.getInt("set_number", 3)} ${view.context.getString(R.string.set)}"
+                    view.setText.text = setCount
                 }
             }
         }
 
         private fun timerPause() {
             state = PAUSE
+        }
+
+        private fun preWorkout() {
+            state = PREWORKOUT
+
+            singleTime = 5
+
+            val countDownTask = object: TimerTask() {
+                override fun run() {
+                    activity.runOnUiThread {
+                        if (--singleTime == 0) {
+                            workout()
+                        }
+                    }
+                }
+            }
+
+            activity.mTimer?.cancel()
+            activity.mTimer = Timer()
+            activity.mTimer!!.schedule(countDownTask, 1000, 1000)
         }
 
         private fun workout() {
@@ -220,6 +267,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                         activity.runOnUiThread {
                             if (--exTime == 0) {
                                 activity.mTimer?.cancel()
+                                workoutedTime = prefs.getInt("workout_time", 5) * 60
                                 rest()
                             }
                         }
@@ -228,10 +276,8 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
             }
 
             view.apply {
-                val restTime = "${prefs.getInt("rest_time", 1)}:00"
-
                 nextStatusLbl.text = context.getString(R.string.rest)
-                nextTimeLbl.text = restTime
+                nextTimeLbl.text = timeText(prefs.getInt("rest_time", 1) * 60)
             }
 
             activity.mTimer?.cancel()
@@ -251,7 +297,6 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                             if (--exTime == 0) {
                                 activity.mTimer?.cancel()
                                 insertRecord()
-                                interval()
                             }
                         }
                     }
@@ -259,10 +304,13 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
             }
 
             view.apply {
-                val workoutTime = "${prefs.getInt("workout_time", 5)}:00"
-
-                nextStatusLbl.text = context.getString(R.string.workout)
-                nextTimeLbl.text = workoutTime
+                if (setNum == prefs.getInt("set_number", 3)) {
+                    nextStatusLbl.text = context.getString(R.string.interval)
+                    nextTimeLbl.text = timeText(prefs.getInt("round_interval", 3))
+                } else {
+                    nextStatusLbl.text = context.getString(R.string.workout)
+                    nextTimeLbl.text = timeText(prefs.getInt("workout_time", 5) * 60)
+                }
             }
 
             activity.mTimer?.cancel()
@@ -273,16 +321,21 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         private fun interval() {
             state = INTERVAL
 
-            exTime = prefs.getInt(if (setNum == 1) "round_interval" else "set_interval", 3)
+            singleTime = prefs.getInt("round_interval", 3)
 
             val countDownTask = object: TimerTask() {
                 override fun run() {
                     activity.runOnUiThread {
-                        if (--exTime == 0) {
+                        if (--singleTime == 0) {
                             workout()
                         }
                     }
                 }
+            }
+
+            view.apply {
+                nextStatusLbl.text = context.getString(R.string.workout)
+                nextTimeLbl.text = timeText(prefs.getInt("workout_time", 5) * 60)
             }
 
             activity.mTimer?.cancel()
@@ -296,29 +349,50 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
             val record = realm.createObject<Logs>()
             record.apply {
                 round = roundNum
-                set = setNum++
-                date = Calendar.getInstance().time
                 workoutTime = workoutedTime
                 restTime = prefs.getInt("rest_time", 1) * 60 - exTime
+                set = setNum++
+                date = Calendar.getInstance().time
             }
 
             realm.commitTransaction()
+        }
 
-            val setText = "$setNum ${view.context.getString(R.string.set)}"
-            view.setLbl.text = setText
+        private fun workoutFinish() {
+            state = FINISH
+
+            view.apply {
+                roundLbl.visibility = View.INVISIBLE
+                setLbl.visibility = View.INVISIBLE
+
+                val finishText = "${setNum}SETS\n${roundNum}ROUNDS"
+                workoutTimeLbl.text = finishText
+                workoutTimeLbl.textSize = 60f
+                workoutTimeLbl.typeface = ResourcesCompat.getFont(context, R.font.jost_500_medium)
+
+                nextLbl.text = context.getString(R.string.total)
+                nextStatusLbl.text = context.getString(R.string.workoutTime)
+            }
         }
 
         private fun bindAdapter() {
-            val logsData = realm.where(Logs::class.java).findAll()
+            val logsData = realm.where(Logs::class.java).findAll().filter {
+                val ldt = Instant.ofEpochMilli(it.date.time).atZone(ZoneId.systemDefault()).toLocalDateTime()
+                ldt.month == LocalDate.now().month && ldt.dayOfMonth == LocalDate.now().dayOfMonth
+            }
             val roundArray = arrayListOf<List<Logs>>()
-            for (i in 1 .. logsData.last()!!.round)
-                roundArray.add(logsData.filter {
-                    val ldt = Instant.ofEpochMilli(it.date.time).atZone(ZoneId.systemDefault()).toLocalDateTime()
-                    ldt.month == LocalDate.now().month && ldt.dayOfMonth == LocalDate.now().dayOfMonth && it.round == i
-                })
+            if (logsData.isNotEmpty()) {
+                for (i in 1..logsData.reduce { max, log -> if(max.round > log.round) max else log }.round)
+                    roundArray.add(logsData.filter { it.round == i })
 
-            view.curLogRecyclerView.adapter = CurLogsAdapter(roundArray)
-            view.curLogRecyclerView.layoutManager = LinearLayoutManager(view.context)
+                view.curLogRecyclerView.adapter = CurLogsAdapter(roundArray)
+                view.curLogRecyclerView.layoutManager = LinearLayoutManager(view.context)
+            }
+        }
+
+        private fun timeText(second: Int): String {
+            val formatter = DecimalFormat("00")
+            return "${formatter.format(second / 60)}:${formatter.format(second % 60)}"
         }
     }
 }

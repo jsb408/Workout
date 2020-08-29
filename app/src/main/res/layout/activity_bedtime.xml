@@ -10,7 +10,8 @@
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/actionbar_custom" />
+        layout="@layout/actionbar_custom"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/timeTypeSwitch"
@@ -45,14 +46,17 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="25dp"
         android:layout_marginEnd="16dp"
+        android:background="@color/nightCardBackground"
         app:cardCornerRadius="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/infoText1Lbl">
 
         <RelativeLayout
+            android:id="@+id/timePickerRelative"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@color/nightCardBackground">
 
             <LinearLayout
                 android:id="@+id/timePickerLayout"
@@ -65,6 +69,7 @@
                     android:id="@+id/hourPicker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:theme="@style/NumberPicker"
                     android:clickable="false"
                     android:descendantFocusability="blocksDescendants" />
 
@@ -74,12 +79,14 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text=":" />
+                    android:text=":"
+                    android:textColor="@android:color/white" />
 
                 <NumberPicker
                     android:id="@+id/minutePicker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:theme="@style/NumberPicker"
                     android:clickable="false"
                     android:descendantFocusability="blocksDescendants" />
 
@@ -115,8 +122,10 @@
         app:layout_constraintTop_toBottomOf="@+id/infoText2Lbl">
 
         <RelativeLayout
+            android:id="@+id/timeTextRelative"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@color/nightCardBackground">
 
             <LinearLayout
                 android:id="@+id/timeTextLayout"

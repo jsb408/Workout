@@ -4,13 +4,10 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.goldouble.android.workout.R
 import com.goldouble.android.workout.db.Logs
 import kotlinx.android.synthetic.main.list_item_cur_log.view.*
-import kotlinx.android.synthetic.main.list_item_cur_logs.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 

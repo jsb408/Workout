@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">Workout</string>
+    <string name="blank" translatable="false"></string>
 
     <string name="main_timerBtnLbl">Timer</string>
     <string name="main_logBtnLbl">Statistics</string>
@@ -9,28 +10,28 @@
     <string name="timer_restBtnLbl">Rest</string>
     <string name="timer_finishBtnLbl">Finish</string>
 
-    <string name="tapToStart">Tap to start</string>
-    <string name="tapToPause">Tap to pause</string>
-    <string name="tapToResume">Tap to resume\nDoubleTap to next step</string>
-    <string name="tapToSkip">DoubleTap to skip</string>
+    <string name="timer_starts_in">Timer Starts in</string>
+    <string name="next_round_starts_in">Next Round Starts in</string>
+
+    <string name="tapToStart">Tap to Start</string>
+    <string name="tapToPause">Tap to Pause</string>
+    <string name="tapToResume">Tap to Resume\nDouble Tap to Next Step</string>
+    <string name="tapToSkip">Double Tap to Skip</string>
 
     <string name="timerSettings">Timer Settings</string>
 
-    <string name="timer_restFinish_title">Let\'s Workout!</string>
-    <string name="timer_restFinish_content">Your rest time is finished. Go Workout!</string>
     <string name="submit">OK</string>
 
     <string name="timer_curRecordLbl">Log</string>
 
     <string name="estimateTime">Estimate Time</string>
-    <string name="workoutTimerType">Workout timer type</string>
+    <string name="workoutTimerType">Workout Timer Type</string>
     <string name="workoutTimerType_description">*For accurate recording, select count up</string>
-    <string name="countUp">Countup</string>
-    <string name="countDown">Countdown</string>
+    <string name="countUp">Count up</string>
+    <string name="countDown">Count down</string>
     <string name="workoutTime">Workout Time</string>
     <string name="restTime">Rest Time</string>
-    <string name="setInterval">Set Interval</string>
-    <string name="roundInterval">Round Interval</string>
+    <string name="roundInterval">Interval</string>
 
     <string name="wakeup_time">Rise &amp; Shine</string>
     <string name="sleep_time">Bedtime</string>
@@ -40,14 +41,22 @@
     <string name="bedtime_planto1">Select the time you want to sleep</string>
     <string name="bedtime_planto2">We recommend the time below for best sleep quality</string>
 
-    <string name="stop">Stop</string>
-    <string name="workout">Workout</string>
-    <string name="pause">Pause</string>
-    <string name="rest">Rest</string>
-    <string name="interval">Interval</string>
+    <string name="workout">WORKOUT</string>
+    <string name="pause">PAUSED</string>
+    <string name="rest">REST</string>
+    <string name="interval">INTERVAL</string>
+    <string name="result">RESULT</string>
+
+    <string name="finish">FINISH!</string>
+    <string name="congratulation">You made it!</string>
+    <string name="total">TOTAL</string>
+    <string name="workout_time">WORKOUT TIME</string>
 
     <string name="minute">m</string>
     <string name="second">s</string>
+    <string name="min">min</string>
+    <string name="sec">sec</string>
+
     <string name="set">SET</string>
     <string name="round">ROUND</string>
 </resources>

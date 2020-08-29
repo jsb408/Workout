@@ -7,7 +7,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/background</item>
         <item name="buttonStyle">@style/CustomButtonStyle</item>
-        <item name="android:fontFamily">@font/futura_medium_bt</item>
+        <item name="android:fontFamily">@font/jost_400_book</item>
         <item name="android:textColor">@color/textColor</item>
 
         <item name="android:homeAsUpIndicator">@drawable/ic_baseline_arrow_back_32</item>
@@ -22,5 +22,11 @@
         <item name="android:textColor">@color/buttonTextColor</item>
         <item name="textAllCaps">false</item>
         <item name="android:background">@drawable/radius_button</item>
+    </style>
+
+    <style name="NumberPicker">
+        <item name="colorControlNormal">@android:color/darker_gray</item>
+        <item name="android:textColorHighlight">@android:color/darker_gray</item>
+        <item name="android:textColorPrimary">@android:color/darker_gray</item>
     </style>
 </resources>

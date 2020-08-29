@@ -10,14 +10,18 @@
 
     <color name="background">#f5f5f5</color>
     <color name="nightBackground">#2A2E43</color>
+    <color name="nightCardBackground">#353A50</color>
     <color name="buttonTextColor">#FFFFFF</color>
     <color name="buttonColor">#3499fd</color>
     <color name="buttonClickedColor">#1B68B3</color>
 
     <color name="timerStopped">#6E6E6E</color>
-    <color name="timerStarted">#3AE1A7</color>
-    <color name="timerPaused">#FFB900</color>
-    <color name="timerWaited">#FF5050</color>
+    <color name="timerPreWorkout">#FF9C24</color>
+    <color name="timerWorkout">#77DD77</color>
+    <color name="timerRest">#027DFF</color>
+    <color name="timerPaused">#FFDD00</color>
+    <color name="timerWaited">#FF6961</color>
+    <color name="timerResult">#873EB9</color>
     <color name="nextTimer">#3497FD</color>
 
     <color name="disabled">#959595</color>

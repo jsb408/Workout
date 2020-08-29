@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.goldouble.android.workout.LogsActivity
 import com.goldouble.android.workout.R
 import com.goldouble.android.workout.db.Logs
 import com.google.android.material.tabs.TabLayoutMediator
@@ -14,7 +13,7 @@ import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_logs_layout.view.*
 import java.util.*
 
-class LogsViewPagerAdapter(val activity: LogsActivity) : RecyclerView.Adapter<LogsViewPagerAdapter.PagerViewHolder>() {
+class LogsViewPagerAdapter : RecyclerView.Adapter<LogsViewPagerAdapter.PagerViewHolder>() {
     enum class DateScope { TODAY, WEEK, MONTH }
 
     override fun getItemCount(): Int = DateScope.values().size
@@ -48,7 +47,7 @@ class LogsViewPagerAdapter(val activity: LogsActivity) : RecyclerView.Adapter<Lo
                     for (month in cal.apply { time = yearTmpLogs.first()!!.date }.get(Calendar.MONTH)..cal.apply { time = yearTmpLogs.last()!!.date }.get(Calendar.MONTH)) {
                         val monthTmpLogs = yearTmpLogs.filter { cal.apply { it.date }.get(Calendar.MONTH) == month }
                         monthLog.add(monthTmpLogs.reduce{ acc, log -> Logs(
-                            round = log.round, set = log.set, date = log.date,
+                            round = acc.round + if(acc.round < log.round) 1 else 0, set = acc.set + 1, date = log.date,
                             workoutTime = acc.workoutTime + log.workoutTime,
                             restTime = acc.restTime + log.restTime
                         )})
@@ -58,7 +57,7 @@ class LogsViewPagerAdapter(val activity: LogsActivity) : RecyclerView.Adapter<Lo
                             if (weekTmpLogs.isNotEmpty()) {
                                 Log.d("WEEK", weekTmpLogs.joinToString())
                                 weekLog.add(weekTmpLogs.reduce { acc, log -> Logs(
-                                    round = log.round, set = log.set, date = log.date,
+                                    round = acc.round + if(acc.round < log.round) 1 else 0, set = acc.set + 1, date = log.date,
                                     workoutTime = acc.workoutTime + log.workoutTime,
                                     restTime = acc.restTime + log.restTime
                                 )})
@@ -66,9 +65,6 @@ class LogsViewPagerAdapter(val activity: LogsActivity) : RecyclerView.Adapter<Lo
                         }
                     }
                 }
-
-                roundNumText.text = logs.last()!!.round.toString()
-                setNumText.text = logs.size.toString()
 
                 chartViewPager.adapter = ChartViewPagerAdapter(when(scope) {
                     DateScope.TODAY -> logs

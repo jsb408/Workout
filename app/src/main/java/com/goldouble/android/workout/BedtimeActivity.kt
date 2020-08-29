@@ -5,15 +5,19 @@ import android.animation.ObjectAnimator
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
+import android.widget.NumberPicker
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.ThemeUtils
 import com.goldouble.android.workout.customView.CustomActionbar
+import kotlinx.android.synthetic.main.actionbar_custom.view.*
 import kotlinx.android.synthetic.main.activity_bedtime.*
 import java.text.DecimalFormat
 
 class BedtimeActivity : AppCompatActivity() {
     val MINUTE_OF_DAY = 1440
     val timeTextList by lazy { listOf(timeText1, timeText2, timeText3) }
+
+    val ANIMATE_TIME = 700L
 
     var hour = 7
     var minute = 0
@@ -27,6 +31,8 @@ class BedtimeActivity : AppCompatActivity() {
         val customActionbar = CustomActionbar(this).apply {
             setToolbar()
             setTitle(R.string.main_sleepBtnLbl)
+            setBackgroundColor(getColor(R.color.nightCardBackground))
+            setTextColor(Color.WHITE)
         }
 
         hourPicker.apply {
@@ -36,6 +42,9 @@ class BedtimeActivity : AppCompatActivity() {
             setOnValueChangedListener { _, _, newVal ->
                 hour = newVal
                 calculateTime()
+            }
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                textColor = Color.WHITE
             }
         }
 
@@ -47,44 +56,53 @@ class BedtimeActivity : AppCompatActivity() {
                 minute = newVal * 5
                 calculateTime()
             }
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                textColor = Color.WHITE
+            }
         }
 
         timeTypeSwitch.setOnCheckedChangeListener { _, checkedId ->
             if(checkedId) {
-                ObjectAnimator.ofObject(bedtimeConstraintLayout, "backgroundColor", ArgbEvaluator(), getColor(R.color.nightBackground), getColor(R.color.background))
-                    .apply {
-                        duration = 1500
-                        start()
-                    }
-                ObjectAnimator.ofObject(infoText1Lbl, "textColor", ArgbEvaluator(), Color.WHITE, getColor(R.color.textColor))
-                    .apply {
-                        duration = 1500
-                        start()
-                    }
-                ObjectAnimator.ofObject(infoText2Lbl, "textColor", ArgbEvaluator(), Color.WHITE, getColor(R.color.textColor))
-                    .apply {
-                        duration = 1500
-                        start()
-                    }
+                animateColor(bedtimeConstraintLayout, "backgroundColor", getColor(R.color.nightBackground), getColor(R.color.background))
+                animateColor(infoText1Lbl, "textColor", Color.WHITE, getColor(R.color.textColor))
+                animateColor(infoText2Lbl, "textColor", Color.WHITE, getColor(R.color.textColor))
+
+                animateColor(timePickerRelative, "backgroundColor", getColor(R.color.nightCardBackground), Color.WHITE)
+                animateColor(timeTextRelative, "backgroundColor", getColor(R.color.nightCardBackground), Color.WHITE)
+
+                animateColor(timeDivider, "textColor", Color.WHITE, getColor(R.color.textColor))
+
+                animateColor(toolbar.toolbarLayout, "backgroundColor", getColor(R.color.nightCardBackground), Color.WHITE)
+                animateColor(toolbar.titleText, "textColor", Color.WHITE, getColor(R.color.textColor))
+                animateColor(toolbar.backButton, "colorFilter", Color.WHITE, getColor(R.color.textColor))
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    animateColor(hourPicker, "textColor", Color.WHITE, getColor(R.color.textColor))
+                    animateColor(minutePicker,"textColor", Color.WHITE, getColor(R.color.textColor))
+                }
+
                 infoText1Lbl.text = getString(R.string.bedtime_planto1)
                 infoText2Lbl.text = getString(R.string.bedtime_planto2)
                 customActionbar.setTitle(R.string.wakeup_time)
             } else {
-                ObjectAnimator.ofObject( bedtimeConstraintLayout, "backgroundColor", ArgbEvaluator(), getColor(R.color.background), getColor(R.color.nightBackground))
-                    .apply {
-                        duration = 1500
-                        start()
-                    }
-                ObjectAnimator.ofObject(infoText1Lbl, "textColor", ArgbEvaluator(), getColor(R.color.textColor), Color.WHITE)
-                    .apply {
-                        duration = 1500
-                        start()
-                    }
-                ObjectAnimator.ofObject(infoText2Lbl, "textColor", ArgbEvaluator(), getColor(R.color.textColor), Color.WHITE)
-                    .apply {
-                        duration = 1500
-                        start()
-                    }
+                animateColor(bedtimeConstraintLayout, "backgroundColor", getColor(R.color.background), getColor(R.color.nightBackground))
+                animateColor(infoText1Lbl, "textColor", getColor(R.color.textColor), Color.WHITE)
+                animateColor(infoText2Lbl, "textColor", getColor(R.color.textColor), Color.WHITE)
+
+                animateColor(timePickerRelative, "backgroundColor", Color.WHITE, getColor(R.color.nightCardBackground))
+                animateColor(timeTextRelative, "backgroundColor", Color.WHITE, getColor(R.color.nightCardBackground))
+
+                animateColor(timeDivider, "textColor", getColor(R.color.textColor), Color.WHITE)
+
+                animateColor(toolbar.toolbarLayout, "backgroundColor", Color.WHITE, getColor(R.color.nightCardBackground))
+                animateColor(toolbar.titleText, "textColor", getColor(R.color.textColor), Color.WHITE)
+                animateColor(toolbar.backButton, "colorFilter", getColor(R.color.textColor), Color.WHITE)
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    animateColor(hourPicker, "textColor", getColor(R.color.textColor), Color.WHITE)
+                    animateColor(minutePicker, "textColor", getColor(R.color.textColor), Color.WHITE)
+                }
+
                 infoText1Lbl.text = getString(R.string.bedtime_haveto1)
                 infoText2Lbl.text = getString(R.string.bedtime_haveto2)
                 customActionbar.setTitle(R.string.sleep_time)
@@ -118,5 +136,13 @@ class BedtimeActivity : AppCompatActivity() {
 
             timeTextList[i].text = timeText
         }
+    }
+
+    private fun animateColor(view: View, propertyName: String, fromColor: Int, toColor: Int) {
+        ObjectAnimator.ofObject(view, propertyName, ArgbEvaluator(), fromColor, toColor)
+            .apply {
+                duration = ANIMATE_TIME
+                start()
+            }
     }
 }

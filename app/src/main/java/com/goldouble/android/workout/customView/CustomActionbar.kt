@@ -17,4 +17,13 @@ class CustomActionbar(private val activity: AppCompatActivity) {
     fun setTitle(resId: Int) {
         toolbar.titleText.text = activity.getString(resId)
     }
+
+    fun setBackgroundColor(color: Int) {
+        toolbar.toolbarLayout.setBackgroundColor(color)
+    }
+
+    fun setTextColor(color: Int) {
+        toolbar.titleText.setTextColor(color)
+        toolbar.backButton.setColorFilter(color)
+    }
 }

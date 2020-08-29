@@ -14,7 +14,7 @@ class SettingsActivity : AppCompatActivity() {
     enum class Button(val key: String, val def: Int) {
         WORKOUT("workout_time", 5), REST("rest_time", 1),
         SET("set_number", 3), ROUND("round_number", 3),
-        SETINTERVAL("set_interval", 3), ROUNDINTERVAL("round_interval", 3)
+        ROUNDINTERVAL("round_interval", 3)
     }
 
     private lateinit var prefs: SharedPreferences
@@ -52,10 +52,6 @@ class SettingsActivity : AppCompatActivity() {
             pushButton(Button.ROUND)
         }
 
-        setIntervalBtn.setOnClickListener {
-            pushButton(Button.SETINTERVAL)
-        }
-
         roundIntervalBtn.setOnClickListener {
             pushButton(Button.ROUNDINTERVAL)
         }
@@ -71,31 +67,28 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
-            val workoutTimeText = "${getInt("workout_time", Button.WORKOUT.def)}${getString(R.string.minute)}"
+            val workoutTimeText = "${getInt("workout_time", Button.WORKOUT.def)} ${getString(R.string.min)}"
             workoutTimeBtn.text = workoutTimeText
 
-            val restTimeText = "${getInt("rest_time", Button.REST.def)}${getString(R.string.minute)}"
+            val restTimeText = "${getInt("rest_time", Button.REST.def)} ${getString(R.string.min)}"
             restTimeBtn.text = restTimeText
 
             setText.text = getInt("set_number", Button.SET.def).toString()
             roundText.text = getInt("round_number", Button.ROUND.def).toString()
 
-            val setIntervalText = "${getInt("set_interval", Button.SETINTERVAL.def)}${getString(R.string.second)}"
-            setIntervalBtn.text = setIntervalText
-
-            val roundIntervalText = "${getInt("round_interval", Button.ROUNDINTERVAL.def)}${getString(R.string.second)}"
+            val roundIntervalText = "${getInt("round_interval", Button.ROUNDINTERVAL.def)} ${getString(R.string.sec)}"
             roundIntervalBtn.text = roundIntervalText
 
 
             if (getBoolean("timer_type", true)) {
                 val estimateTime = (getInt("workout_time", Button.WORKOUT.def) + getInt("rest_time", Button.REST.def)) *
                         getInt("set_number", Button.SET.def) * getInt("round_number", Button.ROUND.def) * 60
-                val calTimeText = "${estimateTime / 60}:${DecimalFormat("00").format(estimateTime % 60)}"
+                val calTimeText = "${DecimalFormat("00").format(estimateTime / 60)}:${DecimalFormat("00").format(estimateTime % 60)}"
 
                 estimateTimeText.text = calTimeText
                 workoutTimeBtn.isEnabled = true
             } else {
-                estimateTimeText.text = "0:00"
+                estimateTimeText.text = "00:00"
                 workoutTimeBtn.isEnabled = false
             }
         }

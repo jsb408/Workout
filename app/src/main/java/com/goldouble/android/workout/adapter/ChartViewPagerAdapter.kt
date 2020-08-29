@@ -1,5 +1,6 @@
 package com.goldouble.android.workout.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,13 +15,14 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.goldouble.android.workout.R
 import com.goldouble.android.workout.customView.CustomBarChartRender
 import com.goldouble.android.workout.db.Logs
-import io.realm.Realm
-import io.realm.RealmResults
 import kotlinx.android.synthetic.main.activity_logs_layout_chart.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 class ChartViewPagerAdapter(val logs: List<Logs>, val scope: LogsViewPagerAdapter.DateScope) : RecyclerView.Adapter<ChartViewPagerAdapter.PagerViewHolder>() {
+    var setNum = 0
+    var roundNum = 0
+
     enum class ChartData { WORKOUT, REST }
 
     override fun getItemCount(): Int = ChartData.values().size
@@ -93,6 +95,10 @@ class ChartViewPagerAdapter(val logs: List<Logs>, val scope: LogsViewPagerAdapte
             labelList.clear()
             logs.filter {
                 SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(it.date) == date
+            }.also {
+                setNum = it.size
+                roundNum = it.last().round
+                Log.d("NUMS", "SET : $setNum / ROUND : $roundNum")
             }.forEach {
                 times.add(BarEntry(labelList.size.toFloat(), floatArrayOf((if(chart == ChartData.WORKOUT) it.workoutTime else it.restTime).toFloat())))
                 //labelList.add("${it.set}${view.context.getString(R.string.set)}")
