@@ -1,10 +1,10 @@
 package com.goldouble.android.workout.adapter
 
 import android.content.Context
-import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import android.util.Log
 import android.view.*
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,13 +18,24 @@ import io.realm.kotlin.createObject
 import kotlinx.android.synthetic.main.activity_timer_cur_logs.view.*
 import kotlinx.android.synthetic.main.activity_timer_timer.view.*
 import java.text.DecimalFormat
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 import java.util.*
 
 class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<TimerViewPagerAdapter.PagerViewHolder>() {
-    enum class Workout(val color: Int, val title: Int, val bottomPhrase: Int, val topPhrase: Int = R.string.blank) {
+    var logsView: View? = null
+
+    //운동 기록을 임시저장하는 list 선언
+    val roundArray = ArrayList<List<Logs>>() //round별 기록
+        get() {
+            field.clear()
+            if (records.isNotEmpty())
+                for (i in 1..records.last().round)
+                    field.add(records.filter { it.round == i })
+            return field
+        }
+    var records = ArrayList<Logs>() //운동 전체 기록
+
+    //타이머 상태 enum(배경색, 제목, 상단텍스트, 하단텍스트)
+    enum class Workout(val color: Int, val title: Int, val lowerPhrase: Int, val upperPharase: Int = R.string.blank) {
         STOP(R.color.timerStopped, R.string.blank, R.string.tapToStart),
         PREWORKOUT(R.color.timerPreWorkout, R.string.blank, R.string.blank, R.string.timer_starts_in),
         WORKOUT(R.color.timerWorkout, R.string.workout, R.string.tapToPause),
@@ -34,6 +45,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         FINISH(R.color.timerResult, R.string.result, R.string.congratulation, R.string.finish)
     }
 
+    //viewPager에 inflate 될 layout 목록
     val layouts = listOf(
         R.layout.activity_timer_timer,
         R.layout.activity_timer_cur_logs
@@ -114,8 +126,8 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         set(value) {
             field = value
             view.apply {
-                tapToLbl.text = context.getString(value.bottomPhrase)
-                pauseLbl.text = context.getString(value.topPhrase)
+                tapToLbl.text = context.getString(value.lowerPhrase)
+                pauseLbl.text = context.getString(value.upperPharase)
                 if(value != PAUSE) workoutStatusLbl.text = context.getString(value.title)
                 timerLayout.setBackgroundColor(context.getColor(value.color))
             }
@@ -164,6 +176,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                             true
                         }
 
+                        //더블탭을 감지하기 위한 getureDetector
                         val gestureDetector = GestureDetector(context, object: GestureDetector.OnGestureListener {
                             override fun onDown(e: MotionEvent?): Boolean {
                                 return true
@@ -177,7 +190,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                             }
                             override fun onShowPress(e: MotionEvent?) = Unit
                             override fun onSingleTapUp(e: MotionEvent?): Boolean {
-                                val message = Message().apply {data = Bundle().apply { putString("click", "Single") } }
+                                val message = Message().apply { data = Bundle().apply { putString("click", "Single") } }
                                 handler.sendMessageDelayed(message, 100)
                                 return true
                             }
@@ -186,7 +199,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                                 override fun onDoubleTap(e: MotionEvent?): Boolean {
                                     handler.removeCallbacksAndMessages(null)
 
-                                    val message = Message().apply {data = Bundle().apply { putString("click", "더블클릭") } }
+                                    val message = Message().apply {data = Bundle().apply { putString("click", "Double") } }
                                     handler.sendMessage(message)
 
                                     return true
@@ -209,15 +222,8 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                     }
                 }
                 R.layout.activity_timer_cur_logs -> { //최근기록
+                    logsView = view
                     bindAdapter()
-                    realm.addChangeListener { bindAdapter() }
-
-                    val roundCount = "${view.curLogRecyclerView.adapter?.itemCount ?: 0} ${view.context.getString(R.string.round)}"
-                    view.roundText.text = roundCount
-
-                    //val setCount = "${(view.curLogRecyclerView.adapter as CurLogsAdapter?)?.getAllItemCount() ?: 0} ${view.context.getString(R.string.set)}"
-                    val setCount = "${prefs.getInt("set_number", 3)} ${view.context.getString(R.string.set)}"
-                    view.setText.text = setCount
                 }
             }
         }
@@ -241,6 +247,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                 }
             }
 
+            //타이머 세팅
             activity.mTimer?.cancel()
             activity.mTimer = Timer()
             activity.mTimer!!.schedule(countDownTask, 1000, 1000)
@@ -344,18 +351,17 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         }
 
         private fun insertRecord() {
-            realm.beginTransaction()
+            records.add(
+                Logs(
+                    workoutTime = workoutedTime,
+                    restTime = prefs.getInt("rest_time", 1) * 60 - exTime,
+                    round = roundNum,
+                    set = setNum++,
+                    date = Calendar.getInstance().time
+                )
+            )
 
-            val record = realm.createObject<Logs>()
-            record.apply {
-                round = roundNum
-                workoutTime = workoutedTime
-                restTime = prefs.getInt("rest_time", 1) * 60 - exTime
-                set = setNum++
-                date = Calendar.getInstance().time
-            }
-
-            realm.commitTransaction()
+            bindAdapter()
         }
 
         private fun workoutFinish() {
@@ -373,20 +379,39 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                 nextLbl.text = context.getString(R.string.total)
                 nextStatusLbl.text = context.getString(R.string.workoutTime)
             }
+
+            insertRealm()
         }
 
         private fun bindAdapter() {
-            val logsData = realm.where(Logs::class.java).findAll().filter {
-                val ldt = Instant.ofEpochMilli(it.date.time).atZone(ZoneId.systemDefault()).toLocalDateTime()
-                ldt.month == LocalDate.now().month && ldt.dayOfMonth == LocalDate.now().dayOfMonth
-            }
-            val roundArray = arrayListOf<List<Logs>>()
-            if (logsData.isNotEmpty()) {
-                for (i in 1..logsData.reduce { max, log -> if(max.round > log.round) max else log }.round)
-                    roundArray.add(logsData.filter { it.round == i })
+            activity.mCurLogsAdapter = CurLogsAdapter(roundArray)
 
-                view.curLogRecyclerView.adapter = CurLogsAdapter(roundArray)
-                view.curLogRecyclerView.layoutManager = LinearLayoutManager(view.context)
+            view.apply {
+                logsView?.curLogRecyclerView?.adapter = activity.mCurLogsAdapter
+                logsView?.curLogRecyclerView?.layoutManager = LinearLayoutManager(context)
+            }
+
+            val roundCount = "${activity.mCurLogsAdapter?.itemCount ?: 0} ${view.context.getString(R.string.round)}"
+            logsView?.roundText?.text = roundCount
+
+            val setCount = "${prefs.getInt("set_number", 3)} ${view.context.getString(R.string.set)}"
+            logsView?.setText?.text = setCount
+        }
+
+        private fun insertRealm() {
+            records.forEach {
+                realm.beginTransaction()
+
+                val record = realm.createObject<Logs>()
+                record.apply {
+                    round = it.round
+                    workoutTime = it.workoutTime
+                    restTime = it.restTime
+                    set = it.set
+                    date = it.date
+                }
+
+                realm.commitTransaction()
             }
         }
 

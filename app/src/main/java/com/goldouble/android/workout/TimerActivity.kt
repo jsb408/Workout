@@ -4,8 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
+import com.goldouble.android.workout.adapter.CurLogsAdapter
 import com.goldouble.android.workout.adapter.TimerViewPagerAdapter
 import com.goldouble.android.workout.customView.CustomActionbar
 import com.google.android.material.tabs.TabLayoutMediator
@@ -14,21 +16,23 @@ import java.util.*
 
 class TimerActivity : AppCompatActivity() {
     var mTimer: Timer? = null
-    lateinit var customActionbar: CustomActionbar
+    var mCurLogsAdapter : CurLogsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timer)
 
-        customActionbar = CustomActionbar(this).apply {
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) //화면 항상 켜놓기
+
+        val customActionbar = CustomActionbar(this).apply {
             setToolbar()
             setTitle(R.string.main_timerBtnLbl)
         }
 
-        timerViewPager.adapter = TimerViewPagerAdapter(this)
+        timerViewPager.adapter = TimerViewPagerAdapter(this) //뷰 페이저 어댑터
         timerViewPager.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
-            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() { //페이지 리스너
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
 
@@ -37,12 +41,7 @@ class TimerActivity : AppCompatActivity() {
                 }
             })
         }
-        TabLayoutMediator(indicator, timerViewPager) { _, _ -> Unit}.attach()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        timerViewPager.adapter = TimerViewPagerAdapter(this)
+        TabLayoutMediator(indicator, timerViewPager) { _, _ -> Unit}.attach() //뷰 페이저에 인디케이터 달기
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

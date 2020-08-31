@@ -73,3 +73,15 @@ f
 6app/src/main/res/layout/activity_logs_layout_chart.xml,5\c\5c129b443a6c8db5f433fe7584f8b3675ab1ad40
 L
 .idea/codeStyles/Project.xml,6\e\6ecd6000a7b6f4a2884412ff19f74193ed089648
+\
+,app/src/main/res/layout/actionbar_custom.xml,8\9\89e555d56fc6e0bbe4bf7ce8a291cc010587d3ee
+Y
+)app/src/main/res/layout/activity_main.xml,7\6\76b07e40f24cce093536731477540f12e7da3cb6
+]
+-app/src/main/res/layout/activity_settings.xml,8\6\863a9a048ab5cf80439b30a73a719f47f13c462e
+[
++app/src/main/res/layout/activity_splash.xml,1\3\13b26b9b6631cddf289c5ab7c4e546a180da97d8
+R
+"app/src/main/res/values/colors.xml,9\6\969faa2a5d9f5e8390e958d2c07f2cfd54676e6b
+\
+,.idea/inspectionProfiles/Project_Default.xml,4\9\496a238a6afa168dbaf6efd37bb459331589579c
