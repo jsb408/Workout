@@ -397,7 +397,8 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
             val setCount = "${prefs.getInt("set_number", 3)} ${view.context.getString(R.string.set)}"
             logsView?.setText?.text = setCount
         }
-
+        
+        //Realm 저장
         private fun insertRealm() {
             records.forEach {
                 realm.beginTransaction()
@@ -415,6 +416,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
             }
         }
 
+        //숫자 형식 지정
         private fun timeText(second: Int): String {
             val formatter = DecimalFormat("00")
             return "${formatter.format(second / 60)}:${formatter.format(second % 60)}"

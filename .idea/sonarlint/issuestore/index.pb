@@ -9,8 +9,6 @@ P
 app/build.gradle,f\4\f4a01d6a4fcb971362ec00a83903fd3902f52164
 p
 @app/src/main/java/com/goldouble/android/workout/TimerActivity.kt,5\2\52f8a5093e0206929bcf8c884f09e3cfe47ef2ae
-x
-Happ/src/main/java/com/goldouble/android/workout/adapter/CurLogAdapter.kt,b\5\b5d0f0a2d4ed337feed43928f056fb05eaf892a7
 €
 Papp/src/main/java/com/goldouble/android/workout/adapter/TimerViewPagerAdapter.kt,2\a\2aebc704bea316fe57afcd11c5a25bce3f467dcd
 X
@@ -75,10 +73,6 @@ L
 .idea/codeStyles/Project.xml,6\e\6ecd6000a7b6f4a2884412ff19f74193ed089648
 \
 ,app/src/main/res/layout/actionbar_custom.xml,8\9\89e555d56fc6e0bbe4bf7ce8a291cc010587d3ee
-Y
-)app/src/main/res/layout/activity_main.xml,7\6\76b07e40f24cce093536731477540f12e7da3cb6
-]
--app/src/main/res/layout/activity_settings.xml,8\6\863a9a048ab5cf80439b30a73a719f47f13c462e
 [
 +app/src/main/res/layout/activity_splash.xml,1\3\13b26b9b6631cddf289c5ab7c4e546a180da97d8
 R
