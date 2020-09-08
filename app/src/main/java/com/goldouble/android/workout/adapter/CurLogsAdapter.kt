@@ -15,6 +15,7 @@ import com.goldouble.android.workout.R
 import com.goldouble.android.workout.db.Logs
 import kotlinx.android.synthetic.main.activity_timer_cur_logs.view.*
 import kotlinx.android.synthetic.main.list_item_cur_logs.view.*
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -34,7 +35,7 @@ class CurLogsAdapter(val data : ArrayList<List<Logs>>) : RecyclerView.Adapter<Cu
         fun bindLogsData(data: List<Logs>?) {
             data?.let {
                 view.apply {
-                    val roundCount = "${data[0].round}${when (data[0].round % 10) {1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th" }}"
+                    val roundCount = "${data[0].round}${when (data[0].round % 10) {1 -> "ST"; 2 -> "ND"; 3 -> "RD"; else -> "TH"}}"
                     roundCountText.text = roundCount
 
                     data.forEach {
@@ -62,8 +63,9 @@ class CurLogsAdapter(val data : ArrayList<List<Logs>>) : RecyclerView.Adapter<Cu
             }
         }
 
-        private fun timeText(context: Context, time: Int): String {
-            return "${time / 60}${context.getString(R.string.minute)} ${time % 60}${context.getString(R.string.second)}"
+        private fun timeText(context: Context, second: Int): String {
+            val formatter = DecimalFormat("00")
+            return "${formatter.format(second / 60)}${context.getString(R.string.minute)} ${formatter.format(second % 60)}${context.getString(R.string.second)}"
         }
     }
 }

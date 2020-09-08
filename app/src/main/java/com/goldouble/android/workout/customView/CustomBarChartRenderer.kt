@@ -113,7 +113,7 @@ class CustomBarChartRender(chart: BarDataProvider?, animator: ChartAnimator?, vi
                     RectF(
                         buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
                         buffer.buffer[j + 3]
-                    ), mRadius, mRadius, true, true, true, true
+                    ), mRadius, mRadius, tl = true, tr = true, br = true, bl = true
                 )
                 c.drawPath(path, mBarBorderPaint)
             }
@@ -121,9 +121,9 @@ class CustomBarChartRender(chart: BarDataProvider?, animator: ChartAnimator?, vi
         }
     }
 
-    private fun roundRect(rect: RectF, rx: Float, ry: Float, tl: Boolean, tr: Boolean, br: Boolean, bl: Boolean): Path {
-        var rx = rx
-        var ry = ry
+    private fun roundRect(rect: RectF, irx: Float, iry: Float, tl: Boolean, tr: Boolean, br: Boolean, bl: Boolean): Path {
+        var rx = irx
+        var ry = iry
         val top = rect.top
         val left = rect.left
         val right = rect.right

@@ -30,10 +30,8 @@ class LogsActivity : AppCompatActivity() {
         viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
 
         TabLayoutMediator(tabLayout, viewPager) { _, _ -> Unit}.attach()
-        TabLayoutMediator(tabLayoutIndicator, viewPager) { _, _ -> Unit}.attach()
 
-        tabLayout.getTabAt(0)?.text = "TODAY"
-        tabLayout.getTabAt(1)?.text = "WEEK"
-        tabLayout.getTabAt(2)?.text = "MONTH"
+        tabLayout.getTabAt(0)?.text = "RECORD"
+        tabLayout.getTabAt(1)?.text = "STATS"
     }
 }

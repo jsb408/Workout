@@ -4,22 +4,40 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.goldouble.android.workout.R
+import com.goldouble.android.workout.customView.CustomBarChartRender
 import com.goldouble.android.workout.db.Logs
-import com.google.android.material.tabs.TabLayoutMediator
 import io.realm.Realm
-import kotlinx.android.synthetic.main.activity_logs_layout.view.*
+import kotlinx.android.synthetic.main.activity_logs_record.view.*
+import kotlinx.android.synthetic.main.activity_logs_stats.view.*
+import kotlinx.android.synthetic.main.list_item_record.view.*
+import java.text.DecimalFormat
+import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class LogsViewPagerAdapter : RecyclerView.Adapter<LogsViewPagerAdapter.PagerViewHolder>() {
-    enum class DateScope { TODAY, WEEK, MONTH }
+    val layouts = listOf(
+        R.layout.activity_logs_record,
+        R.layout.activity_logs_stats
+    )
 
-    override fun getItemCount(): Int = DateScope.values().size
+    override fun getItemCount(): Int = layouts.size
 
     override fun getItemViewType(position: Int): Int {
-        return R.layout.activity_logs_layout
+        return layouts[position]
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogsViewPagerAdapter.PagerViewHolder {
@@ -27,56 +45,138 @@ class LogsViewPagerAdapter : RecyclerView.Adapter<LogsViewPagerAdapter.PagerView
     }
 
     override fun onBindViewHolder(holder: PagerViewHolder, position: Int) {
-        holder.bindData(DateScope.values()[position])
+        holder.bindData(position)
     }
 
     inner class PagerViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         private val realm = Realm.getDefaultInstance()
+        private val logs = combineLog()
 
-        fun bindData(scope: DateScope) {
-            view.apply {
-                val logs = realm.where(Logs::class.java).findAll()
-
-                val cal = Calendar.getInstance()
-
-                val monthLog = arrayListOf<Logs>()
-                val weekLog = arrayListOf<Logs>()
-
-                for (year in cal.apply { time = logs.first()!!.date }.get(Calendar.YEAR) .. cal.apply { time = logs.last()!!.date }.get(Calendar.YEAR)) {
-                    val yearTmpLogs = logs.filter { cal.apply { it.date }.get(Calendar.YEAR) == year }
-                    for (month in cal.apply { time = yearTmpLogs.first()!!.date }.get(Calendar.MONTH)..cal.apply { time = yearTmpLogs.last()!!.date }.get(Calendar.MONTH)) {
-                        val monthTmpLogs = yearTmpLogs.filter { cal.apply { it.date }.get(Calendar.MONTH) == month }
-                        monthLog.add(monthTmpLogs.reduce{ acc, log -> Logs(
-                            round = acc.round + if(acc.round < log.round) 1 else 0, set = acc.set + 1, date = log.date,
-                            workoutTime = acc.workoutTime + log.workoutTime,
-                            restTime = acc.restTime + log.restTime
-                        )})
-                        for (week in cal.apply { time = monthTmpLogs.first()!!.date }.get(Calendar.WEEK_OF_MONTH) .. cal.apply { time = monthTmpLogs.last()!!.date }.get(Calendar.WEEK_OF_MONTH)) {
-                            val weekTmpLogs = monthTmpLogs.filter { cal.apply { it.date }.get(Calendar.WEEK_OF_MONTH) == week }
-                            Log.d("WEEK", weekTmpLogs.joinToString())
-                            if (weekTmpLogs.isNotEmpty()) {
-                                Log.d("WEEK", weekTmpLogs.joinToString())
-                                weekLog.add(weekTmpLogs.reduce { acc, log -> Logs(
-                                    round = acc.round + if(acc.round < log.round) 1 else 0, set = acc.set + 1, date = log.date,
-                                    workoutTime = acc.workoutTime + log.workoutTime,
-                                    restTime = acc.restTime + log.restTime
-                                )})
+        fun bindData(position: Int) {
+            when (layouts[position]) {
+                R.layout.activity_logs_record -> {
+                    view.apply {
+                        recordRecyclerView.adapter = RecordAdapter(logs)
+                        recordRecyclerView.layoutManager = LinearLayoutManager(view.context)
+                    }
+                }
+                R.layout.activity_logs_stats -> {
+                    view.apply {
+                        setChart()
+                        Log.d("CHART", "LOG")
+                        logBarChart.setOnChartValueSelectedListener(object: OnChartValueSelectedListener {
+                            override fun onValueSelected(e: Entry?, h: Highlight?) {
+                                setInfo(logs[h!!.dataSetIndex])
                             }
+
+                            override fun onNothingSelected() = Unit
+                        })
+                    }
+                }
+            }
+        }
+
+        private fun combineLog(): List<Logs> {
+            val logs = realm.where(Logs::class.java).findAll()
+            val data = ArrayList<Logs>()
+
+            logs.groupBy { it.workoutSeq }
+                .forEach {
+                    val totalWorkout = it.value.sumBy { log -> log.workoutTime }
+                    val totalRest = it.value.sumBy { log -> log.restTime }
+
+                    data.add(
+                        Logs(
+                            workoutSeq = it.value.last().workoutSeq,
+                            workoutTime = totalWorkout,
+                            restTime = totalRest,
+                            set = it.value.last().set,
+                            round = it.value.last().round,
+                            date = Date(it.value.last().workoutSeq)
+                        )
+                    )
+                }
+
+            return data
+        }
+
+        private fun setChart() {
+            view.logBarChart.apply {
+                setScaleEnabled(false)
+                axisLeft.apply {
+                    axisMinimum = 0f
+                    textColor = resources.getColor(R.color.subTextColor, null)
+                    axisLineWidth = 0f
+                    textSize = 12f
+                }
+                axisRight.isEnabled = false
+                legend.apply {
+                    orientation = Legend.LegendOrientation.VERTICAL
+                    horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+                    verticalAlignment = Legend.LegendVerticalAlignment.TOP
+                    form = Legend.LegendForm.LINE
+                    formSize = 27f
+                    formLineWidth = 8f
+                    textColor = resources.getColor(R.color.textColor, null)
+                    setDrawInside(true)
+                    yOffset = -10f
+                }
+                xAxis.apply {
+                    this.position = XAxis.XAxisPosition.BOTTOM
+                    setDrawGridLines(false)
+                    granularity = 1.0f
+                    textColor = resources.getColor(R.color.subTextColor, null)
+                    textSize = 12f
+                }
+
+                val barChartRender = CustomBarChartRender(this, this.animator, this.viewPortHandler).apply { setRadius(30f) }
+                renderer = barChartRender
+
+                description.isEnabled = false
+
+                setChartData()
+            }
+        }
+
+        private fun setChartData() {
+            val times = ArrayList<BarEntry>()
+            val labelList = ArrayList<String>()
+
+            logs.forEach {
+                times.add(BarEntry(labelList.size.toFloat(), floatArrayOf(it.workoutTime / 60f, it.restTime / 60f)))
+                labelList.add(SimpleDateFormat("MM.dd HH:mm", Locale.getDefault()).format(it.date))
+            }
+
+            view.logBarChart.apply {
+                data = BarData().apply {
+                    addDataSet(BarDataSet(times, null).apply {
+                        colors = listOf(context.resources.getColor(R.color.chart1, null), context.resources.getColor(R.color.chart2, null))
+                        stackLabels = arrayOf(context.getString(R.string.workout), context.getString(R.string.rest))
+                    })
+                    setValueTextSize(0f)
+                }
+                xAxis.apply {
+                    valueFormatter = object: IndexAxisValueFormatter() {
+                        override fun getFormattedValue(value: Float): String {
+                            return labelList[value.toInt()]
                         }
                     }
                 }
+            }
+        }
 
-                chartViewPager.adapter = ChartViewPagerAdapter(when(scope) {
-                    DateScope.TODAY -> logs
-                    DateScope.WEEK -> weekLog
-                    DateScope.MONTH -> monthLog
-                }, scope)
-                chartViewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+        private fun setInfo(log: Logs) {
+            view.apply {
+                val totalTime = log.workoutTime + log.restTime
+                val formatter = DecimalFormat("00")
+                val tTimeText = "${formatter.format(totalTime / 60)}:${formatter.format(totalTime % 60)}"
 
-                TabLayoutMediator(chartTabLayout, chartViewPager) { _, _ -> Unit }.attach()
-
-                chartTabLayout.getTabAt(0)?.text = context.getString(R.string.workout)
-                chartTabLayout.getTabAt(1)?.text = context.getString(R.string.rest)
+                totalTimeText.text = tTimeText
+                recordDateText.text = SimpleDateFormat("yy.MM.dd HH:mm", Locale.getDefault()).format(log.date)
+                workoutText.text = (log.workoutTime / 60).toString()
+                restText.text = (log.restTime / 60).toString()
+                setText.text = log.set.toString()
+                roundText.text = log.round.toString()
             }
         }
     }

@@ -1,81 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:background="@android:color/white">
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="150dp"
+            android:fontFamily="@font/jost_500_medium"
+            android:text="@string/app_name"
+            android:textColor="@color/titleColor"
+            android:textSize="40sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/timerBtn"
+            android:layout_width="0dp"
+            android:layout_height="80sp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="60dp"
+            android:layout_marginEnd="16dp"
+            android:drawableStart="@drawable/ic_baseline_timer_50"
+            android:drawablePadding="13dp"
+            android:fontFamily="@font/jost_500_medium"
+            android:paddingStart="68dp"
+            android:paddingEnd="0dp"
+            android:text="@string/main_timerBtnLbl"
+            android:textAlignment="textStart"
+            android:textSize="33sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <Button
+            android:id="@+id/logsBtn"
+            android:layout_width="0dp"
+            android:layout_height="80sp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="16dp"
+            android:drawableStart="@drawable/ic_baseline_bar_chart_50"
+            android:drawablePadding="13dp"
+            android:fontFamily="@font/jost_500_medium"
+            android:paddingStart="68dp"
+            android:paddingEnd="0dp"
+            android:text="@string/main_logBtnLbl"
+            android:textAlignment="textStart"
+            android:textSize="33sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/timerBtn" />
+
+        <Button
+            android:id="@+id/sleepBtn"
+            android:layout_width="0dp"
+            android:layout_height="80sp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="16dp"
+            android:drawableStart="@drawable/ic_baseline_king_bed_50"
+            android:drawablePadding="13dp"
+            android:fontFamily="@font/jost_500_medium"
+            android:paddingStart="68dp"
+            android:paddingEnd="0dp"
+            android:text="@string/main_sleepBtnLbl"
+            android:textAlignment="textStart"
+            android:textSize="33sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/logsBtn" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
-        android:fontFamily="@font/jost_500_medium"
-        android:text="@string/app_name"
-        android:textColor="@color/titleColor"
-        android:textSize="40sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@string/banner_ad_unit_id"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="282dp" />
 
-    <Button
-        android:id="@+id/timerBtn"
-        android:layout_width="0dp"
-        android:layout_height="80sp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginEnd="16dp"
-        android:drawableStart="@drawable/ic_baseline_timer_50"
-        android:drawablePadding="13dp"
-        android:fontFamily="@font/jost_500_medium"
-        android:paddingStart="68dp"
-        android:paddingEnd="0dp"
-        android:text="@string/main_timerBtnLbl"
-        android:textAlignment="textStart"
-        android:textSize="33sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-    <Button
-        android:id="@+id/logsBtn"
-        android:layout_width="0dp"
-        android:layout_height="80sp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="16dp"
-        android:drawableStart="@drawable/ic_baseline_bar_chart_50"
-        android:drawablePadding="13dp"
-        android:fontFamily="@font/jost_500_medium"
-        android:paddingStart="68dp"
-        android:paddingEnd="0dp"
-        android:text="@string/main_logBtnLbl"
-        android:textAlignment="textStart"
-        android:textSize="33sp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/timerBtn" />
-
-    <Button
-        android:id="@+id/sleepBtn"
-        android:layout_width="0dp"
-        android:layout_height="80sp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="16dp"
-        android:drawableStart="@drawable/ic_baseline_king_bed_50"
-        android:drawablePadding="13dp"
-        android:fontFamily="@font/jost_500_medium"
-        android:paddingStart="68dp"
-        android:paddingEnd="0dp"
-        android:text="@string/main_sleepBtnLbl"
-        android:textAlignment="textStart"
-        android:textSize="33sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/logsBtn" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

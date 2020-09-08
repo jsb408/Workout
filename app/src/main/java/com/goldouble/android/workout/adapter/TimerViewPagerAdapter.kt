@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Message
 import android.util.Log
 import android.view.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +22,8 @@ import java.text.DecimalFormat
 import java.util.*
 
 class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<TimerViewPagerAdapter.PagerViewHolder>() {
+    val seq = System.currentTimeMillis()
+
     var logsView: View? = null
 
     //운동 기록을 임시저장하는 list 선언
@@ -138,6 +141,8 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                 R.layout.activity_timer_timer -> { //타이머
                     view.apply {
                         exTime = 0
+                        Log.d("WIDTH", timerCardView.width.toString())
+                        //timerCardView.layoutParams = ConstraintLayout.LayoutParams(timerCardView.width, timerCardView.width)
 
                         val roundText = "$roundNum/${prefs.getInt("round_number", 3)} ${context.getString(R.string.round)}"
                         roundLbl.text = roundText
@@ -223,6 +228,13 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                 }
                 R.layout.activity_timer_cur_logs -> { //최근기록
                     logsView = view
+
+                    val roundCount = "${prefs.getInt("round_number", 3)} ${view.context.getString(R.string.round)}"
+                    view.roundText?.text = roundCount
+
+                    val setCount = "${prefs.getInt("set_number", 3)} ${view.context.getString(R.string.set)}"
+                    view.setText?.text = setCount
+
                     bindAdapter()
                 }
             }
@@ -390,12 +402,6 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                 logsView?.curLogRecyclerView?.adapter = activity.mCurLogsAdapter
                 logsView?.curLogRecyclerView?.layoutManager = LinearLayoutManager(context)
             }
-
-            val roundCount = "${activity.mCurLogsAdapter?.itemCount ?: 0} ${view.context.getString(R.string.round)}"
-            logsView?.roundText?.text = roundCount
-
-            val setCount = "${prefs.getInt("set_number", 3)} ${view.context.getString(R.string.set)}"
-            logsView?.setText?.text = setCount
         }
         
         //Realm 저장
@@ -405,6 +411,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
 
                 val record = realm.createObject<Logs>()
                 record.apply {
+                    workoutSeq = seq
                     round = it.round
                     workoutTime = it.workoutTime
                     restTime = it.restTime

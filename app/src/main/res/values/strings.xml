@@ -2,6 +2,9 @@
     <string name="app_name" translatable="false">Workout</string>
     <string name="blank" translatable="false"></string>
 
+    <string name="admob_app_id">ca-app-pub-2116099479139841~9409056396</string>
+    <string name="banner_ad_unit_id">ca-app-pub-2116099479139841/5275382021</string>
+
     <string name="main_timerBtnLbl">Timer</string>
     <string name="main_logBtnLbl">Statistics</string>
     <string name="main_sleepBtnLbl">Bedtime</string>
@@ -51,6 +54,12 @@
     <string name="congratulation">You made it!</string>
     <string name="total">TOTAL</string>
     <string name="workout_time">WORKOUT TIME</string>
+
+    <string name="low_total">Total</string>
+    <string name="low_workout">Workout</string>
+    <string name="low_rest">Rest</string>
+    <string name="low_set">Set</string>
+    <string name="low_round">Round</string>
 
     <string name="minute">m</string>
     <string name="second">s</string>
