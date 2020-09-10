@@ -14,7 +14,7 @@
         android:layout_marginTop="18dp"
         android:layout_marginBottom="18dp"
         app:cardCornerRadius="12dp"
-        app:layout_constraintBottom_toTopOf="@+id/include"
+        app:layout_constraintBottom_toTopOf="@+id/chartDetail"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="16dp">
 
@@ -28,12 +28,13 @@
     </androidx.cardview.widget.CardView>
 
     <include
-        android:id="@+id/include"
+        android:id="@+id/chartDetail"
         layout="@layout/list_item_record"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="35dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="16dp" />
 

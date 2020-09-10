@@ -1,6 +1,7 @@
 package com.goldouble.android.workout.customView
 
 import android.graphics.*
+import android.util.Log
 import com.github.mikephil.charting.animation.ChartAnimator
 import com.github.mikephil.charting.interfaces.dataprovider.BarDataProvider
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
@@ -56,6 +57,7 @@ class CustomBarChartRender(chart: BarDataProvider?, animator: ChartAnimator?, vi
 
         // initialize the buffer
         val buffer = mBarBuffers[index]
+        Log.d("PHASE", "x : $phaseX, y : $phaseY")
         buffer.setPhases(phaseX, phaseY)
         buffer.setDataSet(index)
         buffer.setInverted(mChart.isInverted(dataSet.axisDependency))
@@ -105,7 +107,7 @@ class CustomBarChartRender(chart: BarDataProvider?, animator: ChartAnimator?, vi
                 RectF(
                     buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
                     buffer.buffer[j + 3]
-                ), mRadius, mRadius, true, true, true, true
+                ), mRadius, mRadius, tl = true, tr = true, br = true, bl = true
             )
             c.drawPath(path2, mRenderPaint)
             if (drawBorder) {

@@ -19,7 +19,7 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CurLogsAdapter(val data : ArrayList<List<Logs>>) : RecyclerView.Adapter<CurLogsAdapter.ItemViewHolder>() {
+class CurLogsAdapter(val data : List<List<Logs>>) : RecyclerView.Adapter<CurLogsAdapter.ItemViewHolder>() {
     override fun getItemCount(): Int = data.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {

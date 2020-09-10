@@ -29,7 +29,7 @@ class RecordAdapter(private val data: List<Logs>): RecyclerView.Adapter<RecordAd
                 view.apply {
                     val totalTime = log.workoutTime + log.restTime
                     val formatter = DecimalFormat("00")
-                    val tTimeText = "${formatter.format(totalTime / 60)}:${formatter.format(totalTime % 60)}"
+                    val tTimeText = "${formatter.format(totalTime / 3600)}:${formatter.format(totalTime / 60 % 60)}:${formatter.format(totalTime % 60)}"
 
                     totalTimeText.text = tTimeText
                     recordDateText.text = SimpleDateFormat("yy.MM.dd HH:mm", Locale.getDefault()).format(log.date)

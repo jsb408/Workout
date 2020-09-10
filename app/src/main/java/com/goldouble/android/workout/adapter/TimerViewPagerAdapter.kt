@@ -6,7 +6,6 @@ import android.os.Handler
 import android.os.Message
 import android.util.Log
 import android.view.*
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,20 +21,10 @@ import java.text.DecimalFormat
 import java.util.*
 
 class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<TimerViewPagerAdapter.PagerViewHolder>() {
-    val seq = System.currentTimeMillis()
+    val records = ArrayList<Logs>() //운동 전체 기록
 
+    var seq = 0L
     var logsView: View? = null
-
-    //운동 기록을 임시저장하는 list 선언
-    val roundArray = ArrayList<List<Logs>>() //round별 기록
-        get() {
-            field.clear()
-            if (records.isNotEmpty())
-                for (i in 1..records.last().round)
-                    field.add(records.filter { it.round == i })
-            return field
-        }
-    var records = ArrayList<Logs>() //운동 전체 기록
 
     //타이머 상태 enum(배경색, 제목, 상단텍스트, 하단텍스트)
     enum class Workout(val color: Int, val title: Int, val lowerPhrase: Int, val upperPharase: Int = R.string.blank) {
@@ -72,14 +61,16 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         private val realm = Realm.getDefaultInstance()
         private val prefs = activity.getSharedPreferences("TimerSettings",Context.MODE_PRIVATE)
 
-        private var workoutedTime = 0
+        private var workoutedTime: Int? = null
         var exTime = 0
         set(value) {
             field = value
             view.apply {
-                workoutTimeLbl.text = timeText(value)
-                workoutTimeLbl.textSize = 90f
-                workoutTimeLbl.typeface = ResourcesCompat.getFont(context, R.font.jost_400_book)
+                workoutTimeLbl.apply {
+                    text = timeText(value)
+                    textSize = 90f
+                    typeface = ResourcesCompat.getFont(context, R.font.jost_400_book)
+                }
             }
         }
 
@@ -87,9 +78,11 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         set(value) {
             field = value
             view.apply {
-                workoutTimeLbl.text = value.toString()
-                workoutTimeLbl.textSize = 120f
-                workoutTimeLbl.typeface = ResourcesCompat.getFont(context, R.font.jost_500_medium)
+                workoutTimeLbl.apply {
+                    text = value.toString()
+                    textSize = 120f
+                    typeface = ResourcesCompat.getFont(context, R.font.jost_500_medium)
+                }
             }
         }
 
@@ -155,23 +148,25 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                         val handler = Handler {
                             if (it.data.getString("click") == "Single") {
                                 when (state) {
-                                    STOP -> preWorkout()
+                                    STOP -> {
+                                        seq = System.currentTimeMillis()
+                                        preWorkout()
+                                    }
                                     WORKOUT -> timerPause()
-                                    PAUSE -> state = if (workoutedTime > 0) REST else WORKOUT
+                                    PAUSE -> state = if (workoutedTime != null) REST else WORKOUT
                                     REST -> timerPause()
                                     else -> Unit
                                 }
                             } else { //더블탭
                                 when (state) {
                                     PAUSE -> {
-                                        if (workoutedTime == 0) {
+                                        if (workoutedTime == null) {
                                             workoutedTime = if (prefs.getBoolean("timer_type", true))
                                                     prefs.getInt("workout_time",5) * 60 - exTime else exTime
-                                            if (workoutedTime == 0) workoutedTime = 1
                                             rest()
                                         } else {
                                             insertRecord()
-                                            workoutedTime = 0
+                                            workoutedTime = null
                                         }
                                     }
                                     INTERVAL -> workout()
@@ -365,14 +360,15 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         private fun insertRecord() {
             records.add(
                 Logs(
-                    workoutTime = workoutedTime,
+                    workoutTime = workoutedTime!!,
                     restTime = prefs.getInt("rest_time", 1) * 60 - exTime,
                     round = roundNum,
-                    set = setNum++,
+                    set = setNum,
                     date = Calendar.getInstance().time
                 )
             )
 
+            setNum++
             bindAdapter()
         }
 
@@ -396,7 +392,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         }
 
         private fun bindAdapter() {
-            activity.mCurLogsAdapter = CurLogsAdapter(roundArray)
+            activity.mCurLogsAdapter = CurLogsAdapter(records.groupBy { it.round }.values.toList())
 
             view.apply {
                 logsView?.curLogRecyclerView?.adapter = activity.mCurLogsAdapter

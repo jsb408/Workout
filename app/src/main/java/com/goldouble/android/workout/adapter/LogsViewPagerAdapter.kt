@@ -1,13 +1,19 @@
 package com.goldouble.android.workout.adapter
 
+import android.animation.*
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.Constraints
+import androidx.core.view.get
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
@@ -20,6 +26,7 @@ import com.goldouble.android.workout.R
 import com.goldouble.android.workout.customView.CustomBarChartRender
 import com.goldouble.android.workout.db.Logs
 import io.realm.Realm
+import io.realm.exceptions.RealmMigrationNeededException
 import kotlinx.android.synthetic.main.activity_logs_record.view.*
 import kotlinx.android.synthetic.main.activity_logs_stats.view.*
 import kotlinx.android.synthetic.main.list_item_record.view.*
@@ -65,11 +72,35 @@ class LogsViewPagerAdapter : RecyclerView.Adapter<LogsViewPagerAdapter.PagerView
                         setChart()
                         Log.d("CHART", "LOG")
                         logBarChart.setOnChartValueSelectedListener(object: OnChartValueSelectedListener {
-                            override fun onValueSelected(e: Entry?, h: Highlight?) {
-                                setInfo(logs[h!!.dataSetIndex])
+                            override fun onValueSelected(e: Entry, h: Highlight) {
+                                logBarChart.highlightValues(arrayOf(
+                                    Highlight(h.x, h.y, h.xPx, h.yPx, h.dataSetIndex, 0, YAxis.AxisDependency.LEFT),
+                                    Highlight(h.x, h.y, h.xPx, h.yPx, h.dataSetIndex, 1, YAxis.AxisDependency.LEFT)
+                                ))
+                                setInfo(logs[h.x.toInt()])
+                                Log.d("Entry", e.toString())
+                                Log.d("Hightlight", h.toString())
                             }
 
-                            override fun onNothingSelected() = Unit
+                            override fun onNothingSelected() {
+                                chartDetail.visibility = View.GONE
+//                                ValueAnimator.ofInt(chartDetail.measuredHeight, -200).apply {
+//                                    addUpdateListener {
+//                                        val value = it.animatedValue as Int
+//                                        val layoutParams = chartDetail.layoutParams
+//                                        layoutParams.height = value
+//                                        chartDetail.layoutParams = layoutParams
+//                                    }
+//                                    addListener( object: AnimatorListenerAdapter() {
+//                                        override fun onAnimationEnd(animation: Animator?) {
+//                                            super.onAnimationEnd(animation)
+//                                            chartDetail.visibility = View.GONE
+//                                        }
+//                                    })
+//                                    duration = 500
+//                                    start()
+//                                }
+                            }
                         })
                     }
                 }
@@ -77,27 +108,34 @@ class LogsViewPagerAdapter : RecyclerView.Adapter<LogsViewPagerAdapter.PagerView
         }
 
         private fun combineLog(): List<Logs> {
-            val logs = realm.where(Logs::class.java).findAll()
             val data = ArrayList<Logs>()
 
-            logs.groupBy { it.workoutSeq }
-                .forEach {
-                    val totalWorkout = it.value.sumBy { log -> log.workoutTime }
-                    val totalRest = it.value.sumBy { log -> log.restTime }
+            try {
+                val logs = realm.where(Logs::class.java).findAll()
 
-                    data.add(
-                        Logs(
-                            workoutSeq = it.value.last().workoutSeq,
-                            workoutTime = totalWorkout,
-                            restTime = totalRest,
-                            set = it.value.last().set,
-                            round = it.value.last().round,
-                            date = Date(it.value.last().workoutSeq)
+                logs.groupBy { it.workoutSeq }
+                    .forEach {
+                        val totalWorkout = it.value.sumBy { log -> log.workoutTime }
+                        val totalRest = it.value.sumBy { log -> log.restTime }
+
+                        data.add(
+                            Logs(
+                                workoutSeq = it.value.last().workoutSeq,
+                                workoutTime = totalWorkout,
+                                restTime = totalRest,
+                                set = it.value.last().set,
+                                round = it.value.last().round,
+                                date = Date(it.value.last().workoutSeq)
+                            )
                         )
-                    )
-                }
-
-            return data
+                    }
+            } catch (e: RealmMigrationNeededException) {
+                e.printStackTrace()
+                realm.deleteAll()
+                data.addAll(combineLog())
+            } finally {
+                return data
+            }
         }
 
         private fun setChart() {
@@ -129,8 +167,7 @@ class LogsViewPagerAdapter : RecyclerView.Adapter<LogsViewPagerAdapter.PagerView
                     textSize = 12f
                 }
 
-                val barChartRender = CustomBarChartRender(this, this.animator, this.viewPortHandler).apply { setRadius(30f) }
-                renderer = barChartRender
+                renderer = CustomBarChartRender(this, this.animator, this.viewPortHandler).apply { setRadius(30f) }
 
                 description.isEnabled = false
 
@@ -169,7 +206,7 @@ class LogsViewPagerAdapter : RecyclerView.Adapter<LogsViewPagerAdapter.PagerView
             view.apply {
                 val totalTime = log.workoutTime + log.restTime
                 val formatter = DecimalFormat("00")
-                val tTimeText = "${formatter.format(totalTime / 60)}:${formatter.format(totalTime % 60)}"
+                val tTimeText = "${formatter.format(totalTime / 60 / 60)}:${formatter.format(totalTime / 60 % 60)}:${formatter.format(totalTime % 60)}"
 
                 totalTimeText.text = tTimeText
                 recordDateText.text = SimpleDateFormat("yy.MM.dd HH:mm", Locale.getDefault()).format(log.date)
@@ -177,6 +214,25 @@ class LogsViewPagerAdapter : RecyclerView.Adapter<LogsViewPagerAdapter.PagerView
                 restText.text = (log.restTime / 60).toString()
                 setText.text = log.set.toString()
                 roundText.text = log.round.toString()
+
+                chartDetail.visibility = View.VISIBLE
+
+//                chartDetail.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+//                val target = chartDetail.measuredHeight
+//                val layoutParam = chartDetail.layoutParams
+//                layoutParam.height = 0
+//                chartDetail.layoutParams = layoutParam
+//
+//                chartDetail.visibility = View.VISIBLE
+//                ValueAnimator.ofInt(chartDetail.measuredHeight, target).apply {
+//                    addUpdateListener {
+//                        val layoutParams = chartDetail.layoutParams
+//                        layoutParams.height = (target * it.animatedFraction).toInt()
+//                        chartDetail.layoutParams = layoutParams
+//                    }
+//                    duration = 500
+//                    start()
+//                }
             }
         }
     }
