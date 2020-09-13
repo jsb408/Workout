@@ -27,7 +27,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
     var logsView: View? = null
 
     //타이머 상태 enum(배경색, 제목, 상단텍스트, 하단텍스트)
-    enum class Workout(val color: Int, val title: Int, val lowerPhrase: Int, val upperPharase: Int = R.string.blank) {
+    enum class Workout(val color: Int, val title: Int, val lowerPhrase: Int, val upperParase: Int = R.string.blank) {
         STOP(R.color.timerStopped, R.string.blank, R.string.tapToStart),
         PREWORKOUT(R.color.timerPreWorkout, R.string.blank, R.string.blank, R.string.timer_starts_in),
         WORKOUT(R.color.timerWorkout, R.string.workout, R.string.tapToPause),
@@ -96,11 +96,11 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                 }
                 else {
                     roundNum++
-                    interval()
+                    setTimer(INTERVAL)
                     1
                 }
             } else {
-                workout()
+                setTimer(WORKOUT)
                 value
             }
             view.apply {
@@ -123,7 +123,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
             field = value
             view.apply {
                 tapToLbl.text = context.getString(value.lowerPhrase)
-                pauseLbl.text = context.getString(value.upperPharase)
+                pauseLbl.text = context.getString(value.upperParase)
                 if(value != PAUSE) workoutStatusLbl.text = context.getString(value.title)
                 timerLayout.setBackgroundColor(context.getColor(value.color))
             }
@@ -150,26 +150,25 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                                 when (state) {
                                     STOP -> {
                                         seq = System.currentTimeMillis()
-                                        preWorkout()
+                                        setTimer(PREWORKOUT)
                                     }
-                                    WORKOUT -> timerPause()
+                                    WORKOUT -> setTimer(PAUSE)
                                     PAUSE -> state = if (workoutedTime != null) REST else WORKOUT
-                                    REST -> timerPause()
+                                    REST -> setTimer(PAUSE)
                                     else -> Unit
                                 }
                             } else { //더블탭
                                 when (state) {
                                     PAUSE -> {
                                         if (workoutedTime == null) {
-                                            workoutedTime = if (prefs.getBoolean("timer_type", true))
-                                                    prefs.getInt("workout_time",5) * 60 - exTime else exTime
-                                            rest()
+                                            workoutedTime = if (prefs.getBoolean("timer_type", true)) prefs.getInt("workout_time",5) * 60 - exTime else exTime
+                                            setTimer(REST)
                                         } else {
                                             insertRecord()
                                             workoutedTime = null
                                         }
                                     }
-                                    INTERVAL -> workout()
+                                    INTERVAL -> setTimer(WORKOUT)
                                     else -> Unit
                                 }
                             }
@@ -224,137 +223,90 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
                 R.layout.activity_timer_cur_logs -> { //최근기록
                     logsView = view
 
-                    val roundCount = "${prefs.getInt("round_number", 3)} ${view.context.getString(R.string.round)}"
-                    view.roundText?.text = roundCount
+                    val roundCount = "0 ${view.context.getString(R.string.round)}"
+                    logsView?.roundText?.text = roundCount
 
-                    val setCount = "${prefs.getInt("set_number", 3)} ${view.context.getString(R.string.set)}"
-                    view.setText?.text = setCount
+                    val setCount = "0 ${view.context.getString(R.string.set)}"
+                    logsView?.setText?.text = setCount
 
                     bindAdapter()
                 }
             }
         }
 
-        private fun timerPause() {
-            state = PAUSE
-        }
+        private fun setTimer(workout: Workout) {
+            state = workout
 
-        private fun preWorkout() {
-            state = PREWORKOUT
-
-            singleTime = 5
-
-            val countDownTask = object: TimerTask() {
-                override fun run() {
-                    activity.runOnUiThread {
-                        if (--singleTime == 0) {
-                            workout()
+            if(state != PAUSE) {
+                when (state) {
+                    PREWORKOUT -> singleTime = 5
+                    WORKOUT -> {
+                        exTime = if (prefs.getBoolean("timer_type", true)) prefs.getInt("workout_time", 5) * 60 else 0
+                        view.apply {
+                            nextStatusLbl.text = context.getString(R.string.rest)
+                            nextTimeLbl.text = timeText(prefs.getInt("rest_time", 1) * 60)
                         }
                     }
-                }
-            }
-
-            //타이머 세팅
-            activity.mTimer?.cancel()
-            activity.mTimer = Timer()
-            activity.mTimer!!.schedule(countDownTask, 1000, 1000)
-        }
-
-        private fun workout() {
-            state = WORKOUT
-
-            exTime = if (prefs.getBoolean("timer_type", true)) prefs.getInt("workout_time", 5) * 60 else 0
-
-            val countUpTask = object: TimerTask() {
-                override fun run() {
-                    if (state != PAUSE) {
-                        activity.runOnUiThread {
-                            exTime++
+                    REST -> {
+                        exTime = prefs.getInt("rest_time", 1) * 60
+                        view.apply {
+                            if (setNum == prefs.getInt("set_number", 3)) {
+                                nextStatusLbl.text = context.getString(R.string.interval)
+                                nextTimeLbl.text = timeText(prefs.getInt("round_interval", 3))
+                            } else {
+                                nextStatusLbl.text = context.getString(R.string.workout)
+                                nextTimeLbl.text = timeText(if(prefs.getBoolean("timer_type", true)) prefs.getInt("workout_time", 5) * 60 else 0)
+                            }
                         }
                     }
+                    INTERVAL -> {
+                        singleTime = prefs.getInt("round_interval", 3)
+                        view.apply {
+                            nextStatusLbl.text = context.getString(R.string.workout)
+                            nextTimeLbl.text = timeText(if(prefs.getBoolean("timer_type", true)) prefs.getInt("workout_time", 5) * 60 else 0)
+                        }
+                    }
+                    else -> Unit
                 }
-            }
 
-            val countDownTask = object: TimerTask() {
-                override fun run() {
-                    if (state != PAUSE) {
+                val timerTask = object : TimerTask() {
+                    override fun run() {
                         activity.runOnUiThread {
-                            if (--exTime == 0) {
-                                activity.mTimer?.cancel()
-                                workoutedTime = prefs.getInt("workout_time", 5) * 60
-                                rest()
+                            when (state) {
+                                PREWORKOUT, INTERVAL -> {
+                                    if (--singleTime == 0) {
+                                        setTimer(WORKOUT)
+                                    }
+                                }
+                                WORKOUT -> {
+                                    if (state != PAUSE) {
+                                        if (prefs.getBoolean("timer_type", true)) {
+                                            if (--exTime == 0) {
+                                                activity.mTimer?.cancel()
+                                                workoutedTime = prefs.getInt("workout_time", 5) * 60
+                                                setTimer(REST)
+                                            }
+                                        } else exTime++
+                                    }
+                                }
+                                REST -> {
+                                    if (state != PAUSE) {
+                                        if (--exTime == 0) {
+                                            activity.mTimer?.cancel()
+                                            insertRecord()
+                                        }
+                                    }
+                                }
+                                else -> Unit
                             }
                         }
                     }
                 }
+
+                activity.mTimer?.cancel()
+                activity.mTimer = Timer()
+                activity.mTimer!!.schedule(timerTask, 1000, 1000)
             }
-
-            view.apply {
-                nextStatusLbl.text = context.getString(R.string.rest)
-                nextTimeLbl.text = timeText(prefs.getInt("rest_time", 1) * 60)
-            }
-
-            activity.mTimer?.cancel()
-            activity.mTimer = Timer()
-            activity.mTimer!!.schedule(if(prefs.getBoolean("timer_type", true)) countDownTask else countUpTask, 1000, 1000)
-        }
-
-        private fun rest() {
-            state = REST
-
-            exTime = prefs.getInt("rest_time", 1) * 60
-
-            val countDownTask = object: TimerTask() {
-                override fun run() {
-                    if (state != PAUSE) {
-                        activity.runOnUiThread {
-                            if (--exTime == 0) {
-                                activity.mTimer?.cancel()
-                                insertRecord()
-                            }
-                        }
-                    }
-                }
-            }
-
-            view.apply {
-                if (setNum == prefs.getInt("set_number", 3)) {
-                    nextStatusLbl.text = context.getString(R.string.interval)
-                    nextTimeLbl.text = timeText(prefs.getInt("round_interval", 3))
-                } else {
-                    nextStatusLbl.text = context.getString(R.string.workout)
-                    nextTimeLbl.text = timeText(prefs.getInt("workout_time", 5) * 60)
-                }
-            }
-
-            activity.mTimer?.cancel()
-            activity.mTimer = Timer()
-            activity.mTimer!!.schedule(countDownTask, 1000, 1000)
-        }
-
-        private fun interval() {
-            state = INTERVAL
-
-            singleTime = prefs.getInt("round_interval", 3)
-
-            val countDownTask = object: TimerTask() {
-                override fun run() {
-                    activity.runOnUiThread {
-                        if (--singleTime == 0) {
-                            workout()
-                        }
-                    }
-                }
-            }
-
-            view.apply {
-                nextStatusLbl.text = context.getString(R.string.workout)
-                nextTimeLbl.text = timeText(prefs.getInt("workout_time", 5) * 60)
-            }
-
-            activity.mTimer?.cancel()
-            activity.mTimer = Timer()
-            activity.mTimer!!.schedule(countDownTask, 1000, 1000)
         }
 
         private fun insertRecord() {
@@ -369,6 +321,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
             )
 
             setNum++
+            logsView?.noDataLbl?.visibility = View.GONE
             bindAdapter()
         }
 
@@ -386,6 +339,7 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
 
                 nextLbl.text = context.getString(R.string.total)
                 nextStatusLbl.text = context.getString(R.string.workoutTime)
+                nextTimeLbl.text = timeText(records.sumBy { it.workoutTime + it.restTime })
             }
 
             insertRealm()
@@ -395,6 +349,12 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
             activity.mCurLogsAdapter = CurLogsAdapter(records.groupBy { it.round }.values.toList())
 
             view.apply {
+                val roundCount = "$roundNum ${view.context.getString(R.string.round)}"
+                logsView?.roundText?.text = roundCount
+
+                val setCount = "$setNum ${view.context.getString(R.string.set)}"
+                logsView?.setText?.text = setCount
+
                 logsView?.curLogRecyclerView?.adapter = activity.mCurLogsAdapter
                 logsView?.curLogRecyclerView?.layoutManager = LinearLayoutManager(context)
             }

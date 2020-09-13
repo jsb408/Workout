@@ -86,9 +86,11 @@ class SettingsActivity : AppCompatActivity() {
                 val calTimeText = "${DecimalFormat("00").format(estimateTime / 60)}:${DecimalFormat("00").format(estimateTime % 60)}"
 
                 estimateTimeText.text = calTimeText
+                estimateTimeText.setTextColor(resources.getColor(R.color.textColor, null))
                 workoutTimeBtn.isEnabled = true
             } else {
                 estimateTimeText.text = "00:00"
+                estimateTimeText.setTextColor(resources.getColor(R.color.disabled, null))
                 workoutTimeBtn.isEnabled = false
             }
         }

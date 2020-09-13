@@ -36,6 +36,8 @@
     <string name="restTime">Rest Time</string>
     <string name="roundInterval">Interval</string>
 
+    <string name="noData">Go Workout</string>
+
     <string name="wakeup_time">Rise &amp; Shine</string>
     <string name="sleep_time">Bedtime</string>
 

@@ -1,14 +1,9 @@
 package com.goldouble.android.workout.adapter
 
-import android.animation.*
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.Constraints
-import androidx.core.view.get
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.components.Legend
@@ -19,7 +14,6 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.goldouble.android.workout.R
@@ -141,6 +135,7 @@ class LogsViewPagerAdapter : RecyclerView.Adapter<LogsViewPagerAdapter.PagerView
         private fun setChart() {
             view.logBarChart.apply {
                 setScaleEnabled(false)
+                isDoubleTapToZoomEnabled = false
                 axisLeft.apply {
                     axisMinimum = 0f
                     textColor = resources.getColor(R.color.subTextColor, null)

@@ -13,8 +13,7 @@ import kotlin.math.ceil
 import kotlin.math.min
 
 
-class CustomBarChartRender(chart: BarDataProvider?, animator: ChartAnimator?, viewPortHandler: ViewPortHandler?) :
-    BarChartRenderer(chart, animator, viewPortHandler) {
+class CustomBarChartRender(chart: BarDataProvider?, animator: ChartAnimator?, viewPortHandler: ViewPortHandler?) : BarChartRenderer(chart, animator, viewPortHandler) {
     private val mBarShadowRectBuffer = RectF()
     private var mRadius = 0f
     fun setRadius(mRadius: Float) {
@@ -68,10 +67,10 @@ class CustomBarChartRender(chart: BarDataProvider?, animator: ChartAnimator?, vi
         if (isSingleColor) {
             mRenderPaint.color = dataSet.color
         }
-        var j = 0
-        while (j < buffer.size()) {
+        var j = buffer.size() - 4
+        while (j >= 0) {
             if (!mViewPortHandler.isInBoundsLeft(buffer.buffer[j + 2])) {
-                j += 4
+                j -= 4
                 continue
             }
             if (!mViewPortHandler.isInBoundsRight(buffer.buffer[j])) break
@@ -106,7 +105,7 @@ class CustomBarChartRender(chart: BarDataProvider?, animator: ChartAnimator?, vi
             val path2: Path = roundRect(
                 RectF(
                     buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
-                    buffer.buffer[j + 3]
+                    buffer.buffer[j + 3] + (j / 4 % 2) * 50
                 ), mRadius, mRadius, tl = true, tr = true, br = true, bl = true
             )
             c.drawPath(path2, mRenderPaint)
@@ -119,7 +118,7 @@ class CustomBarChartRender(chart: BarDataProvider?, animator: ChartAnimator?, vi
                 )
                 c.drawPath(path, mBarBorderPaint)
             }
-            j += 4
+            j -= 4
         }
     }
 

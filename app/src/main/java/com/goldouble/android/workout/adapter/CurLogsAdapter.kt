@@ -9,11 +9,9 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.goldouble.android.workout.R
 import com.goldouble.android.workout.db.Logs
-import kotlinx.android.synthetic.main.activity_timer_cur_logs.view.*
 import kotlinx.android.synthetic.main.list_item_cur_logs.view.*
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
