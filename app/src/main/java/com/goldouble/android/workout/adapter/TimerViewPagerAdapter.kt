@@ -346,6 +346,8 @@ class TimerViewPagerAdapter(val activity: TimerActivity) : RecyclerView.Adapter<
         }
 
         private fun bindAdapter() {
+            if(records.isNotEmpty()) logsView?.noDataLbl?.visibility = View.GONE
+
             activity.mCurLogsAdapter = CurLogsAdapter(records.groupBy { it.round }.values.toList())
 
             view.apply {
